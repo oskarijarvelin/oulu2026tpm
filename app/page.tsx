@@ -38,6 +38,7 @@ function HomeContent() {
   const [intersections, setIntersections] = useState<IntersectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
   
   // Get parameters from URL, with defaults
   const deviceId = searchParams.get('device') || 'OULU002';
@@ -368,6 +369,67 @@ function HomeContent() {
                         })()}
                       </span>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Risteyksen kuva */}
+              <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="p-4">
+                  <h3 className="text-lg font-medium mb-3 text-black dark:text-zinc-50">
+                    Risteyksen kuva
+                  </h3>
+                  <div 
+                    className="relative w-full bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setImageModalOpen(true)}
+                  >
+                    <Image
+                      src={`/intersections/${deviceId}.png`}
+                      alt={`Risteys ${deviceId}`}
+                      width={800}
+                      height={600}
+                      className="w-full h-auto"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent && !parent.querySelector('.error-message')) {
+                          parent.style.cursor = 'default';
+                          const errorDiv = document.createElement('div');
+                          errorDiv.className = 'error-message flex items-center justify-center h-32 text-gray-500 dark:text-gray-400';
+                          errorDiv.textContent = 'Kuvaa ei saatavilla';
+                          parent.appendChild(errorDiv);
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                    Klikkaa kuvaa nähdäksesi sen suurempana
+                  </p>
+                </div>
+              </div>
+
+              {/* Image Modal */}
+              {imageModalOpen && (
+                <div 
+                  className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+                  onClick={() => setImageModalOpen(false)}
+                >
+                  <div className="relative max-w-7xl max-h-full">
+                    <button
+                      onClick={() => setImageModalOpen(false)}
+                      className="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full w-10 h-10 flex items-center justify-center text-2xl z-10"
+                    >
+                      ✕
+                    </button>
+                    <Image
+                      src={`/intersections/${deviceId}.png`}
+                      alt={`Risteys ${deviceId}`}
+                      width={1600}
+                      height={1200}
+                      className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
+                      onClick={(e) => e.stopPropagation()}
+                    />
                   </div>
                 </div>
               )}
