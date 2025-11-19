@@ -1,0 +1,13 @@
+## Sisääntuloväylät:
+- Saaristonkatu-Rautatienkatu | OULU002 | D1_50
+- Heikinkatu-Rautatienkatu | OULU024 | D2_60_1M, D2_60_1M, D3_60M, D4_60M, D11-60M
+- Limingantie-Joutsentie | OULU35 | D3_55_1M, D3_55_2M, D6_40_1M, D15_60M
+- Isokatu-Heikinkatu | OULU022 | D1_40
+- Aleksanterinkatu-Hallituskatu | OULU017 | D1_50
+- Kajaaninkatu-Torikatu | OULU041_042 | D2_50_1, D2_50_2, D2_50_3
+
+## Poistumisväylät:
+- Saaristonkatu-Rautatienkatu | OULU002 | LL3, LL4
+- Heikinkatu-Rautatienkatu | OULU024 | LL1, LL2, LL6
+- Limingantie-Joutsentie | OULU35 | D1_55_1M, D1_55_2M, D1_55_3M, D2_40M
+- Merikoskenkatu-Koskitie | OULU102_106 | D5_50

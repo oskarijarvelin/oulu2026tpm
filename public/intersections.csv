@@ -1,0 +1,198 @@
+﻿TPM intersection number;location;N_TM35FIN;E_TM35FIN
+HA01LV;Haukiputaantie (Mt 847)-Haukiväylä (Mt 848);7228019;422565
+HA02LV;Haukiputaantie (Mt 847) - Martinniementie (Mt 8460);7230920;423458
+II01LV;Ouluntie (vt 4) - Sorosentie;7241657;424107
+II02LV;Ouluntie (vt 4) - Leipojantie;7243826;424227
+KA01LV;Kalajoki, Kokkolantie (vt 8) - Matkailutie;7126537;345656
+KE007;KEMPELE, Eteläsuomentie (Mt 847)-Piriläntie;7201297;429631
+KE02LV;Ketolanperäntie-Lehmikentäntie;7198467;430943
+KE03LV;Zeppelinin ETL-läntinen;7198825;430643
+KE04LV;Ketolanperäntie-Kiekkotie;7198148;430969
+KE05;Zeppelinin ETL-itäinen;7198678;430821
+KE06LV;Ketolanperäntie (Mt 816) - Zatelliitintie;7198944;430326
+KE09;Mt847 - Komeetantie;7200425;429540
+KE10_11LV;KEMPELE, Lentok.tie (Mt 815)-Vihiluodontie, itä;7202988;426981
+KE10_11LV;KEMPELE, Lentok.tie (Mt 815)-Vihiluodontie, länsi;7202930;426836
+KE12LV;Zatelliitin ramppi, länsi;7200332;430532
+KE13LV;Zatelliitin ramppi, itä;7200256;430874
+KI001;Kuusamontie - Jääli, etelä;7218516;437558
+KI002;Kuusamontie - Jääli, pohj.;7219586;438053
+KI003;Kuusamontie-Ylikiimingintie;7216264;435806
+KI04LV;Kuusamontie (Vt 20)-Yrityspuistontie;7216893;436597
+KI05LV;Kuusamontie (Vt 20)-Kiimingin keskusta (Mt 848);7223267;442531
+KU01LV;Ouluntaival - Kitkantie;7317694;599458
+KU02LV;Ouluntaival - Oulangantie;7317345;598832
+KU03LV;Kitkantie - Kaarlo Hännisentie;7318321;599000
+KU04LV;Ouluntaival - Huoparintie;7316861;598245
+KU05LV;Ouluntaival - Torangintaival;7316755;598117
+LI01LV;Vt 8 - Lumijoentie (Mt 813);7187137;425158
+LI02;Vt 8 / Kurkitie;7187794;426723
+MU01LV;Muhos, Vt22-Asematie;7187385;452232
+MU02LV;MUHOS, Vt22-Kirkkotie;7187993;451298
+MU03LV;Kainuuntie (Vt 22) - Kylmänkyläntie (Mt 8250);7187120;453170
+NI01LV;Nivala, Haapajäventie (Vt 27)-Pidisjärventie;7090802;400352
+NI02LV;Nivala, Haapajärventie (Vt 27) - Maliskyläntie (Mt 1100);7089951;401081
+OULU_102_106;Merikoskenkatu - Koskitie;7211961;427859
+OULU002;Saaristonkatu - Rautatienkatu;7210247;428283
+OULU004;Saaristonkatu - Kansankatu;7210370;428104
+OULU005;Saaristonkatu - Uusikatu;7210428;428015
+OULU007;Uusikatu - Pakkahuoneenkatu;7210612;428136
+OULU008;Uusikatu - Hallituskatu;7210700;428192
+OULU009_010;Uusikatu - Kajaaninkatu;7210835;428287
+OULU009_010;Uusikatu - Asemakatu;7210774;428244
+OULU011;Aleksanterinkatu - Kauppurienkatu;7210762;427717
+OULU012;Kajaaninkatu - Isokatu;7210898;428193
+OULU013;Isokatu - Linnankatu;7210958;428234
+OULU014;Kajaaninkatu - Kirkkokatu;7210958;428106
+OULU015;Linnankatu - Kirkkokatu;7211016;428143
+OULU016;Pokkinen;7211081;427928
+OULU017;Aleksanterinkatu - Hallituskatu;7210942;427837
+OULU018;Saaristonkatu - Isokatu;7210491;427928
+OULU019;Saaristonkatu - Torikatu;7210614;427749
+OULU020;Saaristonkatu - Aleksanterinkatu;7210674;427660
+OULU021;Kainuuntie - Teuvo Pakkalankatu;7209958;428776
+OULU022;Isokatu - Heikinkatu;7211013;428270
+OULU023;Heikinkatu - Lävistäjä;7210895;428438
+OULU024;Heikinkatu - Rautatienkatu;7210774;428629
+OULU025;Kajaanintie - Ratakatu;7210658;428776
+OULU026;Kajaanintie - Teuvo Pakkalankatu;7210563;429045
+OULU027;Kajaanintie - Ylioppilaantie;7210604;429500
+OULU028;Kajaanintie - Professorintie;7210625;429684
+OULU029;Uusikatu - Albertinkatu;7210331;427945
+OULU030;Professorintie - Kiviharjuntie;7210323;429632
+OULU031_058;Uusikatu - Heinätorinkatu;7210079;427785
+OULU031_058;Uusikatu-Nummikatu;7210169;427845
+OULU032;Aleksanterinkatu - Pakkahuoneenkatu;7210857;427780
+OULU033;Uusikatu - Puistokatu;7209756;427573
+OULU045;Uusikatu - Harjapäänkatu;7209650;427553
+OULU034;Limingantie - Oulunsalontie;7209398;427568
+OULU036;Puistokatu - Isokatu;7209818;427484
+OULU037;Limingantie - Kallisentie;7208479;427612
+OULU040;Aleksanterinkatu - Sepänkatu;7210501;427545
+OULU041_042;Kajaaninkatu - Torikatu;7211018;428016
+OULU041_042;Linnankatu - Torikatu;7211076;428053
+OULU043;Saaristonkatu - Kirkkokatu;7210552;427835
+OULU046;Puistokatu - Kirkkokatu;7209877;427391
+OULU047;Puistokatu - Torikatu;7209936;427300
+OULU048_049;Kajaanintie - Peltolantie;7210602;429940
+OULU048_049;Kajaanintie-Kontink.sairaala;7210565;430026
+OULU050;Kajaanintie - OYS;7210444;430288
+OULU052;Limingantie - Rautatienkatu;7209179;427579
+OULU053;Oulunsuuntie - Svaanintie;7209480;430651
+OULU055;Albertinkatu-Torikatu;7210527;427692
+OULU056_057;Albertinkatu-Kirkkokatu;7210465;427777
+OULU056_057;Albertinkatu-Isokatu;7210401;427867
+OULU059;Oulunsuuntie-Aapistie;7209996;430650
+OULU062;Teuvo Pakkalankatu - Tehtaankatu;7210299;428975
+OULU063;Teuvo Pakkalankatu - Marketit;7210468;429041
+OULU064;Ratakatu - Tehtaankatu;7210499;428670
+OULU065;Ratakatu - Marketit;7210596;428736
+OULU066;Lintulammentie-Suvantokatu;7210067;428393
+OULU068;Nuottasaarentie-Kempeleentie;7208944;427467
+OULU069;Nuottasaarentie-Tyrnäväntie;7208938;427299
+OULU097;Kasarmintie-Kurkelantie;7211601;429835
+OULU098;Tulliväylä - Nahkatehtaankatu;7211118;428870
+OULU099;Tulliväylä - Kosteperänkatu;7211429;429049
+OULU1;Saaristonkatu - Ratakatu;7210136;428438
+OULU101;Merikoskenkatu - Valtatie;7212228;427964
+OULU102_106;Merikoskenkatu - Suojatie;7212034;427887
+OULU103;Valtatie - Kaarretie;7212173;428122
+OULU104;Valtatie - Myllytie;7212136;428300
+OULU105;Valtatie - Kalliotie;7212131;428512
+OULU107;Valtatie - Tuirantie;7212269;427853
+OULU108;Paulaharjuntie - Tarmontie;7212745;428320
+OULU109;Paulaharjuntie - Revontie;7212800;427980
+OULU110;Tulliväylä - Valtatie;7212125;429017
+OULU111;Tulliväylä - Kuusamontie;7212299;429066
+OULU113;Kiertotie - Kemintien ramppi;7212511;428040
+OULU114;Kemintie - Kiertotien ramppi;7212417;427950
+OULU115;Bertel Jungin tie - Koskelantie;7212756;427007
+OULU116;Tulliväylä - Paulaharjuntie;7212517;429205
+OULU117;Paulaharjuntie-Korjaamontie;7212598;428967
+OULU118;Koskelantie - Tukkitie;7212943;426939
+OULU120;Kuusamontie - Vaalantie;7212581;430637
+OULU122;Kuusamontie - Typpitie;7212297;429816
+OULU123;Kuusamontie - Pohjantien ramppi;7212263;429491
+OULU124;Kuusamontie - Hintantie;7212261;429241
+OULU128;Kainuuntie - Pohjantien ramppi;7209851;429485
+OULU129;Kainuuntie - Professorintie;7209683;429781
+OULU130;Kainuuntie - Joutsentie;7209187;430220
+OULU131;Joutsentie - Kotkantie;7209065;429853
+OULU132;Joutsentie - Nokelantie;7209158;428836
+OULU133;Lintulammentie - Latokartanontie;7208927;428557
+OULU135;Lintulammentie - Tavitie;7208522;428747
+OULU137;Oulunlahdentie - Pirttilammentie;7204985;431150
+OULU138;Oulunlahdentie - Palokankaantie;7205123;431297
+OULU139;Kaakkurinojantie-suojatie;7204640;430551
+OULU140;Lentokentäntie - Limingantie;7204367;429391
+OULU141;Limingantie (Mt 847)-Perkkiöntie;7205023;429284
+OULU142;Limingantie - Jukolantie;7205710;428979
+OULU143;Limingantie (Mt 847) -Palokankaantie;7206448;428663
+OULU144;Mt 847 - Huhtakalliontie;7203264;429969
+OULU145;Lentokentäntie - Metsokankaantie;7204817;430409
+OULU146;Lentokentäntie (Mt 815)-Rantavainiontie;7204090;429097
+OULU147;Mt 847 - Oulunportti;7203997;429503
+OULU148;Oulunlahdentie-Pohjantie, länsi;7204679;429861
+OULU149;Oulunlahdentie-Pohjantie, itä;7204779;430133
+OULU150;Haukiputaantie - Koskelantie;7215966;426058
+OULU151;Haukiputaantie - Koisotie;7216546;425403
+OULU152;Haukiputaantie - Elektroniikkatie;7215616;426686
+OULU153;Linnanmaantie-Pohjantie (Vt 4), länsi;7215512;426905
+OULU154;Linnanmaantie - Pohjantie (Vt 4), itä;7215534;427185
+OULU155;Raitotie - Eränkävinjäntaival;7217983;427753
+Oulu156;Raitotie-Ritaharjuntie;7218099;427187
+OULU157;Raitotie-Pohjantie (Vt 4), itä;7218119;426903
+OULU158;Raitotie-Pohjantie (Vt 4), länsi;7218234;426575
+OULU160;Kemintie - Tervahovintie;7213660;427933
+OULU161;Tervahovintie - Kaarnatie;7213707;427754
+OULU162;Kemintie - Pohjantie, etelä;7213782;428028
+OULU163;Kemintie - Pohjantie, pohj.;7214000;428243
+OULU164;Alakyläntie - Menninkäisentie;7214137;428315
+OULU165;Alakyläntie-Syynimaantie;7214881;428361
+OULU166;Alakyläntie - Linnanmaantie;7215517;428305
+OULU167;Linnanmaantie - Yliopistokatu;7215532;428117
+OULU168;Alakyläntie - Kalevalantie;7215877;428542
+OULU170;Koskelantie - Tervahovintie;7213632;426683
+OULU171;Koskelantie - Ruittukuja;7214146;426497
+OULU173;Koskelantie-Mustasuontie;7214717;426427
+OULU175;Raitotie-Pöllöntie;7216617;429616
+OULU176;Raitotie-Kalikkatie;7216831;429171
+OULU179;Poikkimaantie (Mt 8155) -Pohjantie, itäramppi;7207753;429632
+OULU180;Limingantie - Äimäraution ramppi;7207738;428056
+OULU181;Poikkimaantie - Lintulammentie;7207682;428837
+OULU182;Poikkimaantie (Mt 8155) - Äimäraution ramppi;7207541;427931
+OULU183;Poikkimaantie (Mt 8155) -Pohjantie, länsiramppi;7207731;429377
+OULU184;Poikkimaantie - Kiilakiventie;7207773;429838
+OULU185;Kainuuntie - Poikkimaantie;7208271;431003
+OULU186;Kainuuntie - Maikkulantie;7207083;432111
+Oulu187;Kainuuntie (Vt 22)-Sääskensuontie;7205973;434464
+OULU188;Oulunsuuntie - Kasarmintie;7211097;430716
+OULU189;Parkkisenkankaantie - Sangintie;7211435;430984
+OULU190;Vaalantie - Parkkisenkankaantie;7211986;431422
+OULU191;Vaalantie - Koivumaantie;7211501;431855
+OULU192;Parkkisenkankaantie - Maanmittarintie;7212679;431875
+OULU193;Raitotie - Konetie;7213908;431379
+OULU194;Raitotie - Kuusamontien eteläramppi;7213363;431773
+OULU195;Raitotie-Vt 20 pohjoisramppi;7213564;431644
+OULU196;Raitotie-Kiilletie;7214492;430987
+OULU197;Vaalantie (Mt 8300) - Soittokunnantie;7209396;433301
+OULU198;Vaalantie - Puntarikankaantie;7210733;432476
+OULU199;Liitintie-Vt 20 pohjoisramppi (Tapsitie);7214457;432986
+OULU35;Limingantie - Joutsentie;7208950;427588
+OULU38;Puistokatu - Aleksanterinkatu;7209995;427212
+OULU39;Aleksanterinkatu - Albertinkatu;7210586;427603
+OULU51;Kastellin Häkki;7210247;430598
+OULU54;Kajaanintie - Maasälväntie;7208500;432147
+Oulu6;Uusikatu - Kauppurienkatu;7210519;428076
+OULU67;Lintulammentie - Takalyötynkatu;7209589;428328
+RA08LV;Raahe, Valtatie (vt 8) - Kantatie (kt 88);7173193;379296
+RA09LV;Raahe, Valtatie (vt 8) - Ouluntie (Mt 8104);7175663;382935
+RA10LV;Raahe, Valtatie (vt 8) - Siikajoentie (Mt 813);7175752;384037
+YL01LV;Ylivieska, Savontie (Vt 27) -Tulolantie, Ylivieska;7106581;380428
+YL02LV;Ylivieska, Savontie (Vt 27) -Ollilanojankatu, Ylivieska;7106390;380951
+YL03LV;Ylivieska, Savontie (Vt 27) - Hakatie;7106507;380564
+YL08LV;Ylivieska, Savontie (Vt 27) - Tehdastie;7106387;381518
+YL09LV;Ylivieska, Savontie (Vt 27) - Palkkitie;7106435;382123
+SO01LV;Sotkamo, Kainuuntie (Kt 76) - Akkoniementie;7112262;567162
+SO02LV;Sotkamo, Kainuuntie (Kt 76) - Torikatu;7112292;567387
+SO03LV;Sotkamo, Kainuuntie (Kt 76) - Keskuskatu;7112332;567682
