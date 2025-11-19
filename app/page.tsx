@@ -1,27 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-
-interface TrafficData {
-  devName: string;
-  measuredTime: string;
-  values: Array<{
-    sgName: string;
-    detName: string;
-    name: string;
-    value: number;
-    unit: string;
-    interval: number;
-    reliabValue: number;
-  }>;
-}
-
-interface AllDetectorsData {
-  [detectorId: string]: TrafficData | null;
-}
+import proj4 from "proj4";
 
 interface IntersectionData {
   id: string;
@@ -31,20 +12,44 @@ interface IntersectionData {
   uid: string; // unique per CSV row to support duplicate ids
 }
 
-function HomeContent() {
-  const searchParams = useSearchParams();
-  const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
-  const [allDetectorsData, setAllDetectorsData] = useState<AllDetectorsData>({});
+// Convert TM35FIN coordinates to WGS84 using proper projection
+function tm35finToWgs84(north: number, east: number) {
+  try {
+    // Define TM35FIN (EPSG:3067) projection
+    const tm35fin = '+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs';
+    // Define WGS84 (EPSG:4326) projection  
+    const wgs84 = '+proj=longlat +datum=WGS84 +no_defs +type=crs';
+    
+    // Transform coordinates
+    const [lon, lat] = proj4(tm35fin, wgs84, [east, north]);
+    
+    // Validate coordinates are in reasonable range for Finland
+    if (lat < 59 || lat > 71 || lon < 19 || lon > 32) {
+      console.warn(`Coordinates out of range for Finland: lat=${lat}, lon=${lon} from TM35FIN(${north}, ${east})`);
+    }
+    
+    return { lat, lon };
+  } catch (error) {
+    console.error('Coordinate transformation error:', error);
+    // Fallback to approximate conversion
+    const lat = 60 + (north - 7200000) / 111000;
+    const lon = 25 + (east - 400000) / 55800;
+    return { lat, lon };
+  }
+}
+
+export default function MapPage() {
   const [intersections, setIntersections] = useState<IntersectionData[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<IntersectionData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  
-  // Get parameters from URL, with defaults
-  const deviceId = searchParams.get('device') || 'OULU002';
-  const detectorId = searchParams.get('detector') || ''; // No default detector
-  // Optional unique id to select a specific CSV row when device ids are duplicated
-  const devUid = searchParams.get('devUid') || '';
+  const [mapLoading, setMapLoading] = useState(true);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+
+  const handleDeviceSelect = (device: IntersectionData) => {
+    setSelectedDevice(device);
+  };
 
   // Load intersections data
   useEffect(() => {
@@ -67,407 +72,320 @@ function HomeContent() {
               uid: `${trimmedId || 'unknown'}_${idx}`,
             } as IntersectionData;
           })
-          .filter(item => item.id); // Filter out invalid entries
+          .filter(item => item.id && item.north && item.east); // Filter out invalid entries
         
         setIntersections(intersectionsData);
       } catch (err) {
         console.error('Error loading intersections:', err);
+      } finally {
+        setLoading(false);
       }
     };
     
     loadIntersections();
   }, []);
 
+  // Initialize map with Leaflet (only when intersections change)
+  const iconsRef = useRef<any>(null);
   useEffect(() => {
-    const fetchTrafficData = async () => {
-      setLoading(true);
-      setError(null);
-      setTrafficData(null);
-      setAllDetectorsData({});
+    if (!intersections.length || !mapRef.current) return;
 
+    const initMap = async () => {
       try {
-        if (detectorId) {
-          // Fetch data for specific detector
-          const apiUrl = `https://api.oulunliikenne.fi/tpm/kpi/traffic-volume/${deviceId}/${detectorId}`;
-          const response = await fetch(apiUrl);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          setTrafficData(data);
-        } else {
-          // Fetch data for all detectors by omitting the detector ID from API URL
-          const apiUrl = `https://api.oulunliikenne.fi/tpm/kpi/traffic-volume/${deviceId}`;
-          const response = await fetch(apiUrl);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const allDetectorsResponse = await response.json();
-          console.log('All tunnistimet API response:', allDetectorsResponse);
-          const allData: AllDetectorsData = {};
-          
-          // Check if response is an array of detector data
-          if (Array.isArray(allDetectorsResponse)) {
-            allDetectorsResponse.forEach((detectorData: TrafficData) => {
-              if (detectorData.values && detectorData.values.length > 0) {
-                const detectorId = detectorData.values[0].detName;
-                allData[detectorId] = detectorData;
-              }
-            });
-          } else if (allDetectorsResponse.values) {
-            // If it's a single response with multiple values, group by detector name
-            const detectorGroups: { [key: string]: TrafficData } = {};
-            
-            allDetectorsResponse.values.forEach((value: any) => {
-              if (!detectorGroups[value.detName]) {
-                detectorGroups[value.detName] = {
-                  devName: allDetectorsResponse.devName,
-                  measuredTime: allDetectorsResponse.measuredTime,
-                  values: []
-                };
-              }
-              detectorGroups[value.detName].values.push(value);
-            });
-            
-            Object.keys(detectorGroups).forEach(detectorId => {
-              allData[detectorId] = detectorGroups[detectorId];
-            });
-          } else {
-            console.warn('Unexpected API response format:', allDetectorsResponse);
-            throw new Error('Odottamaton API-vastauksen muoto');
-          }
+        // Import Leaflet CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
 
-          console.log('Processed tunnistin data:', allData);
-          setAllDetectorsData(allData);
+        // Import Leaflet
+        const L = await import('leaflet');
+
+        // Clear existing map
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Virhe datan haussa');
-      } finally {
-        setLoading(false);
+
+        // Initialize map
+        const map = L.default.map(mapRef.current!, {
+          center: [65.0121, 25.4651], // Oulu center
+          zoom: 11,
+        });
+
+        // Add OpenStreetMap tiles
+        L.default.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        mapInstanceRef.current = map;
+
+        // Create custom marker icon
+        const customIcon = L.default.divIcon({
+          html: `
+            <div style="
+              background-color: #3B82F6;
+              border: 2px solid #1E40AF;
+              border-radius: 50%;
+              width: 16px;
+              height: 16px;
+              position: relative;
+            ">
+              <div style="
+                background-color: white;
+                border-radius: 50%;
+                width: 6px;
+                height: 6px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+              "></div>
+            </div>
+          `,
+          className: 'custom-marker',
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
+
+        const selectedIcon = L.default.divIcon({
+          html: `
+            <div style="
+              background-color: #EF4444;
+              border: 2px solid #DC2626;
+              border-radius: 50%;
+              width: 20px;
+              height: 20px;
+              position: relative;
+              box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            ">
+              <div style="
+                background-color: white;
+                border-radius: 50%;
+                width: 8px;
+                height: 8px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+              "></div>
+            </div>
+          `,
+          className: 'custom-marker-selected',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
+        });
+
+        // Save icons to ref so they can be used when selectedDevice changes
+        iconsRef.current = { customIcon, selectedIcon };
+
+        // Clear existing markers
+        markersRef.current.forEach(marker => map.removeLayer(marker));
+        markersRef.current = [];
+
+        // Add markers
+        const bounds = L.default.latLngBounds([]);
+        
+        intersections.forEach((intersection) => {
+          const coords = tm35finToWgs84(
+            parseFloat(intersection.north),
+            parseFloat(intersection.east)
+          );
+
+          const marker = L.default.marker([coords.lat, coords.lon], {
+            icon: iconsRef.current.customIcon,
+          });
+
+          // Attach CSV-uid to the marker for later reference (supports duplicates)
+          (marker as any)._tpmUid = intersection.uid;
+
+          const popupContent = `
+            <div style="min-width: 200px;">
+              <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937; font-size: 14px;">
+                ${intersection.id}
+              </h3>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #4b5563; line-height: 1.3;">
+                ${intersection.location}
+              </p>
+              <p style="margin: 0 0 8px 0; font-size: 10px; color: #6b7280;">
+                TM35FIN: N: ${intersection.north}, E: ${intersection.east}
+              </p>
+              <a href="/risteys?device=${intersection.id}&devUid=${intersection.uid}" 
+                 style="display: inline-block; background: #3b82f6; color: white; padding: 4px 8px; 
+                        text-decoration: none; border-radius: 4px; font-size: 11px; margin-top: 4px;">
+                Avaa liikennetiedot →
+              </a>
+            </div>
+          `;          marker.bindPopup(popupContent);
+          marker.on('click', () => handleDeviceSelect(intersection));
+          
+          marker.addTo(map);
+          markersRef.current.push(marker);
+          bounds.extend([coords.lat, coords.lon]);
+        });
+
+        // Fit bounds
+        if (intersections.length > 0) {
+          map.fitBounds(bounds, { padding: [20, 20] });
+          if (map.getZoom() > 13) {
+            map.setZoom(13);
+          }
+        }
+
+        setMapLoading(false);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        setMapLoading(false);
       }
     };
 
-    fetchTrafficData();
-  }, [deviceId, detectorId]);
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Oulu2026 TPM
-          </h1>
-          
-          <div className="w-full max-w-md space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Valitse laite:
-                  </label>
-                  <select
-                    value={
-                      // prefer devUid if present, otherwise select first matching device id's uid
-                      devUid || intersections.find(i => i.id === deviceId)?.uid || ''
-                    }
-                    onChange={(e) => {
-                      const newUrl = new URL(window.location.href);
-                      const selectedUid = e.target.value;
-                      const selected = intersections.find(i => i.uid === selectedUid);
-                      if (selected) {
-                        newUrl.searchParams.set('device', selected.id);
-                        newUrl.searchParams.set('devUid', selected.uid);
-                      }
-                      window.location.href = newUrl.toString();
-                    }}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  >
-                    {intersections.map((intersection) => (
-                      <option key={intersection.uid} value={intersection.uid}>
-                        {intersection.id} - {intersection.location}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Tunnistin:
-                  </label>
-                  <select
-                    value={detectorId}
-                    onChange={(e) => {
-                      const newUrl = new URL(window.location.href);
-                      if (e.target.value) {
-                        newUrl.searchParams.set('detector', e.target.value);
-                      } else {
-                        newUrl.searchParams.delete('detector');
-                      }
-                      window.location.href = newUrl.toString();
-                    }}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  >
-                    <option value="">Kaikki tunnistimet</option>
-                    {Object.keys(allDetectorsData)
-                      .sort((a, b) => a.localeCompare(b))
-                      .map((detector) => (
-                        <option key={detector} value={detector}>
-                          {detector} - {allDetectorsData[detector]?.values[0]?.sgName || 'Tuntematon sijainti'}
-                        </option>
-                      ))}
-                  </select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {detectorId ? `Näytetään vain tunnistin: ${detectorId}` : 'Näytetään kaikki saatavilla olevat tunnistimet'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {loading && (
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              Ladataan liikennetietoja...
-            </p>
-          )}
-          
-          {error && (
-            <p className="text-lg text-red-600 dark:text-red-400">
-              Virhe: {error}
-            </p>
-          )}
-          
-          {trafficData && detectorId && (
-            <div className="max-w-md space-y-4">
-              <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2 text-black dark:text-zinc-50">
-                  {trafficData.devName}
-                </h2>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  {new Date(trafficData.measuredTime).toLocaleString('fi-FI')}
-                </p>
-              </div>
-              
-              {trafficData.values.map((value, index) => (
-                <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h3 className="text-lg font-medium mb-2 text-black dark:text-zinc-50">
-                    {value.detName} ({value.sgName})
-                  </h3>
-                  <div className="space-y-1 text-zinc-700 dark:text-zinc-300">
-                    <p><span className="font-medium">Liikennemäärä:</span> {value.value} ajoneuvoa</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+    initMap();
+  }, [intersections]);
 
-          {!detectorId && Object.keys(allDetectorsData).length > 0 && (
-            <div className="w-full max-w-4xl space-y-4">
-              {/* Show location/coords for the selected CSV row (supports duplicates) */}
-              <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2 text-black dark:text-zinc-50">
-                  {(() => {
-                    const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
-                    return selected?.location || deviceId;
-                  })()}
-                </h2>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  {(() => {
-                    const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
-                    return `ID: ${deviceId} | Sijainti: N: ${selected?.north || '-'}, E: ${selected?.east || '-'}`;
-                  })()}
-                </p>
-              </div>
+  // Update marker icons and open popup when a device is selected without re-initializing the map
+  useEffect(() => {
+    if (!mapInstanceRef.current || !markersRef.current.length) return;
+    const map = mapInstanceRef.current;
+    const icons = iconsRef.current;
+    markersRef.current.forEach((marker: any) => {
+      const isSelected = selectedDevice?.uid === (marker as any)._tpmUid;
+      if (icons) marker.setIcon(isSelected ? icons.selectedIcon : icons.customIcon);
+      if (isSelected) {
+        marker.openPopup();
+        // center on selected marker smoothly
+        map.setView(marker.getLatLng(), 15, { animate: true, duration: 0.5 });
+      }
+    });
+  }, [selectedDevice]);
 
-              <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Tunnistin
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Liikennemäärä
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Luotettavuus
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Toiminnot
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white dark:bg-zinc-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      {Object.entries(allDetectorsData).map(([detector, data]) => (
-                        <tr key={detector} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                            {detector}
-                          </td>
-                          {data ? (
-                            <>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                  {data.values[0]?.value || 0} ajoneuvoa
-                                </span>
-                              </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {data.values[0]?.reliabValue || 0} / 5
-                              </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                <Link
-                                  href={`/?device=${deviceId}${devUid ? `&devUid=${devUid}` : ''}&detector=${detector}`}
-                                   className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200"
-                                 >
-                                   Näytä yksityiskohdat
-                                 </Link>
-                               </td>
-                             </>
-                           ) : (
-                            <>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                  Ei dataa
-                                </span>
-                              </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                            </>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {Object.values(allDetectorsData).filter(Boolean).length > 0 && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h3 className="text-lg font-medium mb-2 text-black dark:text-zinc-50">
-                    Yhteenveto
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Kokonaisliikennemäärä:</span>{' '}
-                      <span className="text-green-600 dark:text-green-400">
-                        {Object.values(allDetectorsData)
-                          .filter(Boolean)
-                          .reduce((sum, data) => sum + (data?.values[0]?.value || 0), 0)} ajoneuvoa
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Viimeisin päivitys:</span>{' '}
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {(() => {
-                          const latestTime = Object.values(allDetectorsData)
-                            .filter(Boolean)
-                            .map(data => new Date(data!.measuredTime))
-                            .sort((a, b) => b.getTime() - a.getTime())[0];
-                          return latestTime ? latestTime.toLocaleTimeString('fi-FI') : '-';
-                        })()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Risteyksen kuva */}
-              <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="p-4">
-                  <h3 className="text-lg font-medium mb-3 text-black dark:text-zinc-50">
-                    Risteyksen kuva
-                  </h3>
-                  <div 
-                    className="relative w-full bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setImageModalOpen(true)}
-                  >
-                    <Image
-                      src={`/intersections/${deviceId}.png`}
-                      alt={`Risteys ${deviceId}`}
-                      width={800}
-                      height={600}
-                      className="w-full h-auto"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent && !parent.querySelector('.error-message')) {
-                          parent.style.cursor = 'default';
-                          const errorDiv = document.createElement('div');
-                          errorDiv.className = 'error-message flex items-center justify-center h-32 text-gray-500 dark:text-gray-400';
-                          errorDiv.textContent = 'Kuvaa ei saatavilla';
-                          parent.appendChild(errorDiv);
-                        }
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                    Klikkaa kuvaa nähdäksesi sen suurempana
-                  </p>
-                </div>
-              </div>
-
-              {/* Image Modal */}
-              {imageModalOpen && (
-                <div 
-                  className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-                  onClick={() => setImageModalOpen(false)}
-                >
-                  <div className="relative max-w-7xl max-h-full">
-                    <button
-                      onClick={() => setImageModalOpen(false)}
-                      className="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full w-10 h-10 flex items-center justify-center text-2xl z-10"
-                    >
-                      ✕
-                    </button>
-                    <Image
-                      src={`/intersections/${deviceId}.png`}
-                      alt={`Risteys ${deviceId}`}
-                      width={1600}
-                      height={1200}
-                      className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row mt-10">
-          <button
-            onClick={() => window.location.reload()}
-            className="flex h-12 w-auto items-center justify-center gap-2 rounded-full bg-blue-600 px-5 text-white transition-colors hover:bg-blue-700 "
-          >
-            Päivitä tiedot
-          </button>
-          <Link
-            href="/map"
-            className="flex h-12 w-auto items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700"
-          >
-            Kartta
-          </Link>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
-            Ladataan...
+            Ladataan karttaa...
           </h1>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       </div>
-    }>
-      <HomeContent />
-    </Suspense>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Oulu2026 TPM
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {intersections.length} laitetta löydetty
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex h-[calc(100vh-80px)]">
+        {/* Sidebar with device list */}
+        <div className="w-1/3 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Laitteet ({intersections.length})
+            </h2>
+            <div className="space-y-2">
+              {intersections.map((intersection) => (
+                <div
+                  key={intersection.uid}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedDevice?.uid === intersection.uid
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                  onClick={() => setSelectedDevice(intersection)}
+                >
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {intersection.id}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {intersection.location}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    N: {intersection.north}, E: {intersection.east}
+                  </div>
+                  <Link
+                    href={`/risteys?device=${intersection.id}&devUid=${intersection.uid}`}
+                    className="inline-block mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Näytä tiedot
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Map area */}
+        <div className="flex-1 relative">
+          {intersections.length > 0 ? (
+            <div
+              ref={mapRef}
+              className="w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  {mapLoading ? 'Ladataan karttaa...' : 'Ladataan laitteita...'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Selected device info overlay */}
+          {selectedDevice && (
+            <div className="absolute top-4 right-4 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-sm z-10">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                {selectedDevice.id}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                {selectedDevice.location}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
+                Koordinaatit: N: {selectedDevice.north}, E: {selectedDevice.east}
+              </p>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                {(() => {
+                  const coords = tm35finToWgs84(
+                    parseFloat(selectedDevice.north),
+                    parseFloat(selectedDevice.east)
+                  );
+                  return `WGS84: ${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)}`;
+                })()}
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href={`/risteys?device=${selectedDevice.id}&devUid=${selectedDevice.uid}`}
+                  className="flex-1 text-center bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                >
+                  Avaa tiedot
+                </Link>
+                <button
+                  onClick={() => setSelectedDevice(null)}
+                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
