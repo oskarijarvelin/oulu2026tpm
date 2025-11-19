@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface TrafficData {
@@ -31,7 +31,7 @@ interface IntersectionData {
   uid: string; // unique per CSV row to support duplicate ids
 }
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   const [allDetectorsData, setAllDetectorsData] = useState<AllDetectorsData>({});
@@ -390,5 +390,22 @@ export default function Home() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
+            Ladataan...
+          </h1>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
