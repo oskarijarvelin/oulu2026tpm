@@ -28,6 +28,7 @@ interface IntersectionData {
   location: string;
   north: string;
   east: string;
+  uid: string; // unique per CSV row to support duplicate ids
 }
 
 export default function Home() {
@@ -41,6 +42,8 @@ export default function Home() {
   // Get parameters from URL, with defaults
   const deviceId = searchParams.get('device') || 'OULU002';
   const detectorId = searchParams.get('detector') || ''; // No default detector
+  // Optional unique id to select a specific CSV row when device ids are duplicated
+  const devUid = searchParams.get('devUid') || '';
 
   // Load intersections data
   useEffect(() => {
@@ -50,10 +53,18 @@ export default function Home() {
         const csvText = await response.text();
         const lines = csvText.split('\n').slice(1); // Skip header
         const intersectionsData = lines
-          .filter(line => line.trim())
-          .map(line => {
+          .map(line => line.trim())
+          .filter(line => line)
+          .map((line, idx) => {
             const [id, location, north, east] = line.split(';');
-            return { id: id?.trim(), location: location?.trim(), north: north?.trim(), east: east?.trim() };
+            const trimmedId = id?.trim();
+            return {
+              id: trimmedId,
+              location: location?.trim(),
+              north: north?.trim(),
+              east: east?.trim(),
+              uid: `${trimmedId || 'unknown'}_${idx}`,
+            } as IntersectionData;
           })
           .filter(item => item.id); // Filter out invalid entries
         
@@ -142,17 +153,9 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Oulun Liikenne - Liikennemäärä
+            Oulu2026 TPM
           </h1>
           
           <div className="w-full max-w-md space-y-4">
@@ -162,17 +165,25 @@ export default function Home() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Valitse laite:
                   </label>
-                  <select 
-                    value={deviceId}
+                  <select
+                    value={
+                      // prefer devUid if present, otherwise select first matching device id's uid
+                      devUid || intersections.find(i => i.id === deviceId)?.uid || ''
+                    }
                     onChange={(e) => {
                       const newUrl = new URL(window.location.href);
-                      newUrl.searchParams.set('device', e.target.value);
+                      const selectedUid = e.target.value;
+                      const selected = intersections.find(i => i.uid === selectedUid);
+                      if (selected) {
+                        newUrl.searchParams.set('device', selected.id);
+                        newUrl.searchParams.set('devUid', selected.uid);
+                      }
                       window.location.href = newUrl.toString();
                     }}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     {intersections.map((intersection) => (
-                      <option key={intersection.id} value={intersection.id}>
+                      <option key={intersection.uid} value={intersection.uid}>
                         {intersection.id} - {intersection.location}
                       </option>
                     ))}
@@ -251,12 +262,19 @@ export default function Home() {
 
           {!detectorId && Object.keys(allDetectorsData).length > 0 && (
             <div className="w-full max-w-4xl space-y-4">
+              {/* Show location/coords for the selected CSV row (supports duplicates) */}
               <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
                 <h2 className="text-xl font-semibold mb-2 text-black dark:text-zinc-50">
-                  {intersections.find(i => i.id === deviceId)?.location}
+                  {(() => {
+                    const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
+                    return selected?.location || deviceId;
+                  })()}
                 </h2>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  ID: {deviceId} | Sijainti: N: {intersections.find(i => i.id === deviceId)?.north}, E: {intersections.find(i => i.id === deviceId)?.east}
+                  {(() => {
+                    const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
+                    return `ID: ${deviceId} | Sijainti: N: ${selected?.north || '-'}, E: ${selected?.east || '-'}`;
+                  })()}
                 </p>
               </div>
 
@@ -297,14 +315,14 @@ export default function Home() {
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                 <Link
-                                  href={`/?device=${deviceId}&detector=${detector}`}
-                                  className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200"
-                                >
-                                  Näytä yksityiskohdat
-                                </Link>
-                              </td>
-                            </>
-                          ) : (
+                                  href={`/?device=${deviceId}${devUid ? `&devUid=${devUid}` : ''}&detector=${detector}`}
+                                   className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200"
+                                 >
+                                   Näytä yksityiskohdat
+                                 </Link>
+                               </td>
+                             </>
+                           ) : (
                             <>
                               <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -356,27 +374,19 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row mt-10">
           <button
             onClick={() => window.location.reload()}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-5 text-white transition-colors hover:bg-blue-700 md:w-[158px]"
+            className="flex h-12 w-auto items-center justify-center gap-2 rounded-full bg-blue-600 px-5 text-white transition-colors hover:bg-blue-700 "
           >
             Päivitä tiedot
           </button>
           <Link
             href="/map"
-            className="flex h-12 w-full items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700 md:w-[158px]"
+            className="flex h-12 w-auto items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700"
           >
-            📍 Kartta
+            Kartta
           </Link>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href={`https://api.oulunliikenne.fi/tpm/kpi/traffic-volume/${deviceId}/${detectorId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            API-rajapinta
-          </a>
         </div>
       </main>
     </div>

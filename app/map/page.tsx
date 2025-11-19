@@ -9,6 +9,7 @@ interface IntersectionData {
   location: string;
   north: string;
   east: string;
+  uid: string; // unique per CSV row to support duplicate ids
 }
 
 // Convert TM35FIN coordinates to WGS84 using proper projection
@@ -58,15 +59,18 @@ export default function MapPage() {
         const csvText = await response.text();
         const lines = csvText.split('\n').slice(1); // Skip header
         const intersectionsData = lines
-          .filter(line => line.trim())
-          .map(line => {
+          .map(line => line.trim())
+          .filter(line => line)
+          .map((line, idx) => {
             const [id, location, north, east] = line.split(';');
-            return { 
-              id: id?.trim(), 
-              location: location?.trim(), 
-              north: north?.trim(), 
-              east: east?.trim() 
-            };
+            const trimmedId = id?.trim();
+            return {
+              id: trimmedId,
+              location: location?.trim(),
+              north: north?.trim(),
+              east: east?.trim(),
+              uid: `${trimmedId || 'unknown'}_${idx}`,
+            } as IntersectionData;
           })
           .filter(item => item.id && item.north && item.east); // Filter out invalid entries
         
@@ -81,7 +85,8 @@ export default function MapPage() {
     loadIntersections();
   }, []);
 
-  // Initialize map with Leaflet
+  // Initialize map with Leaflet (only when intersections change)
+  const iconsRef = useRef<any>(null);
   useEffect(() => {
     if (!intersections.length || !mapRef.current) return;
 
@@ -171,6 +176,9 @@ export default function MapPage() {
           iconAnchor: [10, 10],
         });
 
+        // Save icons to ref so they can be used when selectedDevice changes
+        iconsRef.current = { customIcon, selectedIcon };
+
         // Clear existing markers
         markersRef.current.forEach(marker => map.removeLayer(marker));
         markersRef.current = [];
@@ -184,10 +192,12 @@ export default function MapPage() {
             parseFloat(intersection.east)
           );
 
-          const isSelected = selectedDevice?.id === intersection.id;
           const marker = L.default.marker([coords.lat, coords.lon], {
-            icon: isSelected ? selectedIcon : customIcon,
+            icon: iconsRef.current.customIcon,
           });
+
+          // Attach CSV-uid to the marker for later reference (supports duplicates)
+          (marker as any)._tpmUid = intersection.uid;
 
           const popupContent = `
             <div style="min-width: 200px;">
@@ -200,11 +210,11 @@ export default function MapPage() {
               <p style="margin: 0 0 8px 0; font-size: 10px; color: #6b7280;">
                 TM35FIN: N: ${intersection.north}, E: ${intersection.east}
               </p>
-              <a href="/?device=${intersection.id}&detector=D1_50" 
+              <a href="/?device=${intersection.id}&devUid=${intersection.uid}" 
                  style="display: inline-block; background: #3b82f6; color: white; padding: 4px 8px; 
                         text-decoration: none; border-radius: 4px; font-size: 11px; margin-top: 4px;">
-                Avaa liikennetiedot →
-              </a>
+                 Avaa liikennetiedot →
+               </a>
             </div>
           `;
 
@@ -232,21 +242,22 @@ export default function MapPage() {
     };
 
     initMap();
-  }, [intersections, selectedDevice]);
+  }, [intersections]);
 
-  // Center on selected device
+  // Update marker icons and open popup when a device is selected without re-initializing the map
   useEffect(() => {
-    if (selectedDevice && mapInstanceRef.current) {
-      const coords = tm35finToWgs84(
-        parseFloat(selectedDevice.north),
-        parseFloat(selectedDevice.east)
-      );
-      
-      mapInstanceRef.current.setView([coords.lat, coords.lon], 15, {
-        animate: true,
-        duration: 0.5,
-      });
-    }
+    if (!mapInstanceRef.current || !markersRef.current.length) return;
+    const map = mapInstanceRef.current;
+    const icons = iconsRef.current;
+    markersRef.current.forEach((marker: any) => {
+      const isSelected = selectedDevice?.uid === (marker as any)._tpmUid;
+      if (icons) marker.setIcon(isSelected ? icons.selectedIcon : icons.customIcon);
+      if (isSelected) {
+        marker.openPopup();
+        // center on selected marker smoothly
+        map.setView(marker.getLatLng(), 15, { animate: true, duration: 0.5 });
+      }
+    });
   }, [selectedDevice]);
 
   if (loading) {
@@ -296,9 +307,9 @@ export default function MapPage() {
             <div className="space-y-2">
               {intersections.map((intersection) => (
                 <div
-                  key={intersection.id}
+                  key={intersection.uid}
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedDevice?.id === intersection.id
+                    selectedDevice?.uid === intersection.uid
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                       : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
@@ -314,7 +325,7 @@ export default function MapPage() {
                     N: {intersection.north}, E: {intersection.east}
                   </div>
                   <Link
-                    href={`/?device=${intersection.id}&detector=D1_50`}
+                    href={`/?device=${intersection.id}&devUid=${intersection.uid}`}
                     className="inline-block mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -367,7 +378,7 @@ export default function MapPage() {
               </div>
               <div className="flex gap-2">
                 <Link
-                  href={`/?device=${selectedDevice.id}`}
+                  href={`/?device=${selectedDevice.id}&devUid=${selectedDevice.uid}`}
                   className="flex-1 text-center bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
                 >
                   Avaa tiedot
