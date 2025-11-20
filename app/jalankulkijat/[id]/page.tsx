@@ -36,7 +36,7 @@ function SiteDetailsContent() {
   const [channelDataList, setChannelDataList] = useState<ChannelData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<'hour' | 'day' | 'week' | 'month'>('hour');
+  const [step, setStep] = useState<'_15m' | 'hour' | 'day' | 'week' | 'month' | 'year'>('hour');
   const [beginDate, setBeginDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split('T')[0] + 'T00:00:00';
@@ -153,7 +153,7 @@ function SiteDetailsContent() {
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      if (step === 'hour') {
+      if (step === '_15m' || step === 'hour') {
         return date.toLocaleString('fi-FI', { 
           day: '2-digit', 
           month: '2-digit', 
@@ -173,9 +173,13 @@ function SiteDetailsContent() {
           month: '2-digit', 
           year: 'numeric'
         })}`;
-      } else {
+      } else if (step === 'month') {
         return date.toLocaleDateString('fi-FI', { 
           month: 'long', 
+          year: 'numeric'
+        });
+      } else {
+        return date.toLocaleDateString('fi-FI', { 
           year: 'numeric'
         });
       }
@@ -226,10 +230,12 @@ function SiteDetailsContent() {
                 onChange={(e) => setStep(e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
+                <option value="_15m">15 minuuttia</option>
                 <option value="hour">Tunti</option>
                 <option value="day">Päivä</option>
                 <option value="week">Viikko</option>
                 <option value="month">Kuukausi</option>
+                <option value="year">Vuosi</option>
               </select>
             </div>
             <div>
