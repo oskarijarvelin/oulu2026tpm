@@ -282,6 +282,13 @@ export default function MapPage() {
                 Oulu2026 TPM
               </h1>
             </div>
+            <Link 
+              href="/jalankulkijat"
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm md:text-base transition-colors flex items-center gap-2"
+            >
+              <span className="hidden sm:inline">🚶 Jalankulkijat</span>
+              <span className="sm:hidden">🚶</span>
+            </Link>
           </div>
         </div>
       </header>

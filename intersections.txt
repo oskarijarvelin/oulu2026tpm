@@ -11,3 +11,7 @@
 - Heikinkatu-Rautatienkatu | OULU024 | LL1, LL2, LL6
 - Limingantie-Joutsentie | OULU35 | D1_55_1M, D1_55_2M, D1_55_3M, D2_40M
 - Merikoskenkatu-Koskitie | OULU102_106 | D5_50
+
+## Sandyn toiveet
+- Aleksanterinkatu-Saaristonkatu
+- Pokkinen
