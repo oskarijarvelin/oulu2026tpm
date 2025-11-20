@@ -165,6 +165,22 @@ function HomeContent() {
                 Risteystiedot
               </p>
             </div>
+            <div className="flex gap-2 sm:gap-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex h-8 sm:h-9 md:h-10 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-white transition-colors hover:bg-blue-700 font-medium"
+              >
+                <span className="hidden sm:inline">Päivitä tiedot</span>
+                <span className="sm:hidden">🔄</span>
+              </button>
+              <Link
+                href="/"
+                className="flex h-8 sm:h-9 md:h-10 items-center justify-center rounded-lg bg-green-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-white transition-colors hover:bg-green-700 font-medium"
+              >
+                <span className="hidden sm:inline">🗺️ Kartta</span>
+                <span className="sm:hidden">🗺️</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -174,66 +190,33 @@ function HomeContent() {
           
           <div className="w-full max-w-3xl space-y-3 sm:space-y-4">
             <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="space-y-2 sm:space-y-3">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Valitse laite:
-                  </label>
-                  <select
-                    value={
-                      // prefer devUid if present, otherwise select first matching device id's uid
-                      devUid || intersections.find(i => i.id === deviceId)?.uid || ''
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Valitse risteys:
+                </label>
+                <select
+                  value={
+                    // prefer devUid if present, otherwise select first matching device id's uid
+                    devUid || intersections.find(i => i.id === deviceId)?.uid || ''
+                  }
+                  onChange={(e) => {
+                    const newUrl = new URL(window.location.href);
+                    const selectedUid = e.target.value;
+                    const selected = intersections.find(i => i.uid === selectedUid);
+                    if (selected) {
+                      newUrl.searchParams.set('device', selected.id);
+                      newUrl.searchParams.set('devUid', selected.uid);
                     }
-                    onChange={(e) => {
-                      const newUrl = new URL(window.location.href);
-                      const selectedUid = e.target.value;
-                      const selected = intersections.find(i => i.uid === selectedUid);
-                      if (selected) {
-                        newUrl.searchParams.set('device', selected.id);
-                        newUrl.searchParams.set('devUid', selected.uid);
-                      }
-                      window.location.href = newUrl.toString();
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {intersections.map((intersection) => (
-                      <option key={intersection.uid} value={intersection.uid}>
-                        {intersection.id} - {intersection.location}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Tunnistin:
-                  </label>
-                  <select
-                    value={detectorId}
-                    onChange={(e) => {
-                      const newUrl = new URL(window.location.href);
-                      if (e.target.value) {
-                        newUrl.searchParams.set('detector', e.target.value);
-                      } else {
-                        newUrl.searchParams.delete('detector');
-                      }
-                      window.location.href = newUrl.toString();
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">Kaikki tunnistimet</option>
-                    {Object.keys(allDetectorsData)
-                      .sort((a, b) => a.localeCompare(b))
-                      .map((detector) => (
-                        <option key={detector} value={detector}>
-                          {detector} - {allDetectorsData[detector]?.values[0]?.sgName || 'Tuntematon sijainti'}
-                        </option>
-                      ))}
-                  </select>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {detectorId ? `Näytetään vain tunnistin: ${detectorId}` : 'Näytetään kaikki saatavilla olevat tunnistimet'}
-                  </p>
-                </div>
+                    window.location.href = newUrl.toString();
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {intersections.map((intersection) => (
+                    <option key={intersection.uid} value={intersection.uid}>
+                      {intersection.id} - {intersection.location}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -321,8 +304,15 @@ function HomeContent() {
                                   {data.values[0]?.value || 0} autoa
                                 </span>
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {data.values[0]?.reliabValue || 0} / 5
+                              <td className="px-4 py-4 whitespace-nowrap text-sm">
+                                <span className={(() => {
+                                  const reliability = data.values[0]?.reliabValue || 0;
+                                  return reliability >= 4 ? "text-green-600 dark:text-green-400 font-semibold" : 
+                                         reliability >= 3 ? "text-yellow-600 dark:text-yellow-400 font-semibold" : 
+                                         "text-red-600 dark:text-red-400 font-semibold";
+                                })()}>
+                                  {data.values[0]?.reliabValue || 0} / 5
+                                </span>
                               </td>
                             </>
                           ) : (
@@ -367,14 +357,21 @@ function HomeContent() {
                         if (!latestTime) return "text-gray-600 dark:text-gray-400";
                         const now = new Date();
                         const diffMinutes = (now.getTime() - latestTime.getTime()) / (1000 * 60);
-                        return diffMinutes > 15 ? "text-red-600 dark:text-red-400 font-semibold" : "text-gray-600 dark:text-gray-400";
+                        if (diffMinutes < 6) return "text-green-600 dark:text-green-400 font-semibold";
+                        if (diffMinutes > 15) return "text-red-600 dark:text-red-400 font-semibold";
+                        return "text-gray-600 dark:text-gray-400";
                       })()}>
                         {(() => {
                           const latestTime = Object.values(allDetectorsData)
                             .filter(Boolean)
                             .map(data => new Date(data!.measuredTime))
                             .sort((a, b) => b.getTime() - a.getTime())[0];
-                          return latestTime ? latestTime.toLocaleTimeString('fi-FI') : '-';
+                          if (!latestTime) return '-';
+                          const now = new Date();
+                          const isSameDay = latestTime.toDateString() === now.toDateString();
+                          return isSameDay 
+                            ? latestTime.toLocaleTimeString('fi-FI')
+                            : latestTime.toLocaleString('fi-FI');
                         })()}
                       </span>
                     </div>
@@ -466,22 +463,6 @@ function HomeContent() {
               )}
             </div>
           )}
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-3 sm:flex-row mt-6 md:mt-8">
-          <button
-            onClick={() => window.location.reload()}
-            className="flex h-10 md:h-12 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 md:px-5 text-sm md:text-base text-white transition-colors hover:bg-blue-700 font-medium"
-          >
-            Päivitä tiedot
-          </button>
-          <Link
-            href="/"
-            className="flex h-10 md:h-12 items-center justify-center rounded-lg bg-green-600 px-4 md:px-5 text-sm md:text-base text-white transition-colors hover:bg-green-700 font-medium"
-          >
-            🗺️ Kartta
-          </Link>
         </div>
       </main>
     </div>
