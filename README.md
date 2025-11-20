@@ -26,6 +26,7 @@ Interaktiivinen Next.js-sovellus Oulun liikenteen ja jalankulkijoiden/pyöräili
 - **Leaflet** - Interaktiiviset kartat
 - **GraphQL** - API-kyselyt Oulun liikenteen avoimeen dataan
 - **Proj4** - Koordinaattimuunnokset (TM35FIN → WGS84)
+- **Supabase** - Liikennetietojen tallennus ja hallinta
 
 ## Käynnistäminen
 
@@ -33,6 +34,13 @@ Asenna riippuvuudet:
 
 ```bash
 npm install
+```
+
+Konfiguroi ympäristömuuttujat:
+
+```bash
+cp .env.local.example .env.local
+# Muokkaa .env.local -tiedostoa omilla Supabase-asetuksillasi
 ```
 
 Käynnistä kehityspalvelin:
@@ -43,12 +51,31 @@ npm run dev
 
 Avaa [http://localhost:3000](http://localhost:3000) selaimessa.
 
+## Supabase-integraatio
+
+Sovellus tallentaa liikennetiedot automaattisesti Supabase-tietokantaan.
+
+### Asennus ja konfigurointi
+
+Katso yksityiskohtaiset ohjeet: [supabase/README.md](./supabase/README.md)
+
+Lyhyesti:
+1. Luo Supabase-projekti
+2. Aja `supabase/schema.sql` SQL Editorissa
+3. Konfiguroi `.env.local` -tiedosto
+4. Cron-endpoint `/api/cron` hakee ja tallentaa dataa automaattisesti
+
+### Cron-job
+
+Vercel-deploymentissa cron-job ajaa automaattisesti joka 15. minuutti ja tallentaa uudet liikennemittaukset tietokantaan.
+
 ## Sivurakenne
 
 - `/` - TPM-risteysten karttanäkymä
 - `/jalankulkijat` - Laskenta-asemien karttanäkymä
 - `/jalankulkijat/[id]` - Yksittäisen laskenta-aseman yksityiskohtainen näkymä
 - `/risteys` - Risteyskohtainen datanäkymä
+- `/api/cron` - Automaattinen liikennetietojen tallennus (cron-endpoint)
 
 ## API:t
 
