@@ -183,7 +183,7 @@ function SiteDetailsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-blue-50">
+    <div className="min-h-screen bg-zinc-50 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
@@ -316,55 +316,121 @@ function SiteDetailsContent() {
             </div>
 
             {/* Data Tables per channel */}
-            {channelDataList.map((channelData, idx) => {
-          const colorClass = getChannelColor(channelData.channelName);
-          
-          return (
-            <div key={idx} className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                <h2 className={`text-lg font-semibold ${colorClass}`}>
-                  {getChannelLabel(channelData.channelName)} ({channelData.data.length} riviä)
-                </h2>
-              </div>
-              
-              {channelData.data.length === 0 ? (
-                <div className="p-8 text-center">
-                  <p className="text-gray-600 dark:text-gray-400">Ei dataa valitulla aikavälillä</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Päivämäärä
-                        </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Määrä
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {channelData.data.map((item, index) => (
-                        <tr 
-                          key={index}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-800"
-                        >
-                          <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                            {formatDate(item.date)}
-                          </td>
-                          <td className={`px-4 py-3 text-sm text-right font-medium ${colorClass}`}>
-                            {item.counts.toLocaleString('fi-FI')}
-                          </td>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Jalankulkijat taulukko */}
+              {(channelDataList.some(ch => ch.channelName.includes('JK_IN')) || 
+                channelDataList.some(ch => ch.channelName.includes('JK_OUT'))) && (
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Jalankulkijat
+                    </h2>
+                  </div>
+                  
+                  <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Päivämäärä
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                            Saapuvat
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
+                            Poistuvat
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {(() => {
+                          const jkIn = channelDataList.find(ch => ch.channelName.includes('JK_IN'));
+                          const jkOut = channelDataList.find(ch => ch.channelName.includes('JK_OUT'));
+                          const maxLength = Math.max(jkIn?.data.length || 0, jkOut?.data.length || 0);
+                          
+                          return Array.from({ length: maxLength }, (_, index) => {
+                            const inData = jkIn?.data[index];
+                            const outData = jkOut?.data[index];
+                            const date = inData?.date || outData?.date;
+                            
+                            return date ? (
+                              <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                                  {formatDate(date)}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-right font-medium text-blue-600 dark:text-blue-400">
+                                  {inData ? inData.counts.toLocaleString('fi-FI') : '-'}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-right font-medium text-cyan-600 dark:text-cyan-400">
+                                  {outData ? outData.counts.toLocaleString('fi-FI') : '-'}
+                                </td>
+                              </tr>
+                            ) : null;
+                          });
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Pyöräilijät taulukko */}
+              {(channelDataList.some(ch => ch.channelName.includes('PP_IN')) || 
+                channelDataList.some(ch => ch.channelName.includes('PP_OUT'))) && (
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Pyöräilijät
+                    </h2>
+                  </div>
+                  
+                  <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Päivämäärä
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wider">
+                            Saapuvat
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                            Poistuvat
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {(() => {
+                          const ppIn = channelDataList.find(ch => ch.channelName.includes('PP_IN'));
+                          const ppOut = channelDataList.find(ch => ch.channelName.includes('PP_OUT'));
+                          const maxLength = Math.max(ppIn?.data.length || 0, ppOut?.data.length || 0);
+                          
+                          return Array.from({ length: maxLength }, (_, index) => {
+                            const inData = ppIn?.data[index];
+                            const outData = ppOut?.data[index];
+                            const date = inData?.date || outData?.date;
+                            
+                            return date ? (
+                              <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                                  {formatDate(date)}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-right font-medium text-green-600 dark:text-green-400">
+                                  {inData ? inData.counts.toLocaleString('fi-FI') : '-'}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-right font-medium text-emerald-600 dark:text-emerald-400">
+                                  {outData ? outData.counts.toLocaleString('fi-FI') : '-'}
+                                </td>
+                              </tr>
+                            ) : null;
+                          });
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
-          );
-        })}
           </>
         )}
       </div>
