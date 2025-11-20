@@ -1,30 +1,60 @@
+/**
+ * Laskenta-aseman yksityiskohtainen näkymä
+ * 
+ * Tämä sivu näyttää yhden Eco Counter -laskenta-aseman yksityiskohtaiset tiedot,
+ * mukaan lukien:
+ * - Tilastot (yhteensä, keskiarvo, maksimi, minimi)
+ * - Taulukot jalankulkijoille ja pyöräilijöille
+ * - Interaktiivinen SVG-kaavio kaikille kanavile
+ * - Tooltip-tuki kaavioissa
+ * - Suodattimet aikavälille ja päivämäärille
+ * 
+ * Aikavälit: 15 min, tunti, päivä, viikko, kuukausi, vuosi
+ */
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 
+/**
+ * Yksittäinen datapiste (päivämäärä + lukumäärä)
+ */
 interface EcoCounterDataPoint {
-  date: string;
-  counts: number;
+  date: string;    // ISO-muotoinen päivämäärä
+  counts: number;  // Laskettu määrä
 }
 
+/**
+ * Laskenta-aseman data (sama kuin EcoCounterDataPoint)
+ */
 interface EcoCounterSiteData {
   date: string;
   counts: number;
 }
 
+/**
+ * Kanavan perustiedot
+ */
 interface ChannelInfo {
-  siteId: string;
-  name: string;
+  siteId: string;  // Kanavan ID
+  name: string;    // Kanavan nimi (esim. "JK_IN", "PP_OUT")
 }
 
+/**
+ * Kanavan data yhdessä paketissa
+ */
 interface ChannelData {
-  channelName: string;
-  data: EcoCounterDataPoint[];
+  channelName: string;              // Kanavan nimi
+  data: EcoCounterDataPoint[];      // Datapisteet
 }
 
+/**
+ * SiteDetailsContent - Komponentti joka näyttää aseman yksityiskohdat
+ */
 function SiteDetailsContent() {
+  // URL-parametrit
   const params = useParams();
   const searchParams = useSearchParams();
   const siteId = params.id as string;
@@ -32,6 +62,7 @@ function SiteDetailsContent() {
   const siteName = searchParams.get('name') || 'Laskenta-asema';
   const channelsParam = searchParams.get('channels');
   
+  // Tilanhallinta
   const [channels, setChannels] = useState<ChannelInfo[]>([]);
   const [channelDataList, setChannelDataList] = useState<ChannelData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +75,9 @@ function SiteDetailsContent() {
   const [endDate, setEndDate] = useState<string>('');
   const [tooltipData, setTooltipData] = useState<{ x: number; y: number; dataIndex: number } | null>(null);
 
-  // Parse channels from URL parameter
+  /**
+   * Parsii kanavat URL-parametrista
+   */
   useEffect(() => {
     if (channelsParam) {
       try {
@@ -57,6 +90,9 @@ function SiteDetailsContent() {
     }
   }, [channelsParam]);
 
+  /**
+   * Hakee datan kaikille kanaville GraphQL API:sta
+   */
   useEffect(() => {
     const fetchData = async () => {
       if (!channels.length) {
@@ -68,7 +104,7 @@ function SiteDetailsContent() {
       setError(null);
       
       try {
-        // Fetch data for each channel separately
+        // Hae data jokaiselle kanavalle erikseen
         const channelDataResults: ChannelData[] = [];
         
         for (const channel of channels) {
@@ -122,7 +158,9 @@ function SiteDetailsContent() {
     fetchData();
   }, [channels, domain, step, beginDate, endDate]);
 
-  // Get channel label in Finnish
+  /**
+   * Palauttaa kanavan suomenkielisen nimen
+   */
   const getChannelLabel = (name: string) => {
     if (name.includes('JK_IN')) return 'Saapuvat jalankulkijat';
     if (name.includes('JK_OUT')) return 'Poistuvat jalankulkijat';
@@ -131,7 +169,9 @@ function SiteDetailsContent() {
     return name;
   };
 
-  // Get channel color
+  /**
+   * Palauttaa kanavan väriluokan
+   */
   const getChannelColor = (name: string) => {
     if (name.includes('JK_IN')) return 'text-blue-600 dark:text-blue-400';
     if (name.includes('JK_OUT')) return 'text-cyan-600 dark:text-cyan-400';
@@ -140,7 +180,9 @@ function SiteDetailsContent() {
     return 'text-gray-600 dark:text-gray-400';
   };
 
-  // Calculate statistics for each channel
+  /**
+   * Laskee tilastot kanavalle
+   */
   const getChannelStats = (data: EcoCounterDataPoint[]) => {
     const total = data.reduce((sum, item) => sum + (item.counts || 0), 0);
     const average = data.length > 0 ? Math.round(total / data.length) : 0;

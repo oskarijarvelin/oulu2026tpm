@@ -1,3 +1,10 @@
+/**
+ * ESLint Configuration
+ * 
+ * Määrittelee koodin laatutarkistukset Next.js-sovellukselle.
+ * Käyttää Next.js:n suositeltuja sääntöjä TypeScriptille.
+ */
+
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";

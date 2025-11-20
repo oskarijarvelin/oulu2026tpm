@@ -1,8 +1,23 @@
+/**
+ * Jalankulkija- ja pyöräilijälaskenta-asemien karttanäkymä
+ * 
+ * Tämä sivu näyttää interaktiivisen kartan Eco Counter -laskenta-asemista,
+ * joilla mitataan jalankulkijoiden ja pyöräilijöiden määriä Oulussa.
+ * Käyttäjä voi valita aseman kartalta ja siirtyä tarkastelemaan yksityiskohtaista dataa.
+ * 
+ * Käyttää:
+ * - GraphQL API:a laskenta-asemien tietojen hakemiseen
+ * - Leaflet-kirjastoa karttojen näyttämiseen
+ */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
+/**
+ * Yksittäisen kanavan tiedot (esim. jalankulkijat sisään/ulos)
+ */
 interface EcoCounterChannel {
   id: string;
   siteId: string;
@@ -16,29 +31,40 @@ interface EcoCounterChannel {
   lon: number;
 }
 
+/**
+ * Laskenta-aseman tiedot
+ */
 interface EcoCounterSite {
   id: string;
   siteId: string;
-  name: string;
-  domain: string;
+  name: string;        // Aseman nimi
+  domain: string;      // Toimialue (esim. "Oulu_kaupunki")
   userType: number;
   timezone: string;
   interval: number;
   sens: number;
-  channels: EcoCounterChannel[];
+  channels: EcoCounterChannel[];  // Aseman kanavat (JK_IN, JK_OUT, PP_IN, PP_OUT)
 }
 
+/**
+ * JalankulkijatPage - Pääkomponentti laskenta-asemien kartalle
+ */
 export default function JalankulkijatPage() {
+  // Tilanhallinta
   const [sites, setSites] = useState<EcoCounterSite[]>([]);
   const [selectedSite, setSelectedSite] = useState<EcoCounterSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapLoading, setMapLoading] = useState(true);
+  
+  // Refenssit kartan hallintaan
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const iconsRef = useRef<any>(null);
 
-  // Fetch eco counter sites from GraphQL API
+  /**
+   * Hakee laskenta-asemat GraphQL API:sta
+   */
   useEffect(() => {
     const fetchSites = async () => {
       try {
@@ -79,7 +105,7 @@ export default function JalankulkijatPage() {
 
         const result = await response.json();
         if (result.data && result.data.ecoCounterSites) {
-          // Filter out any null or invalid sites
+          // Suodata pois virheelliset asemat
           const validSites = result.data.ecoCounterSites.filter(
             (site: EcoCounterSite | null) => site && site.id && site.name
           );
@@ -95,7 +121,9 @@ export default function JalankulkijatPage() {
     fetchSites();
   }, []);
 
-  // Initialize map with Leaflet
+  /**
+   * Alustaa Leaflet-kartan ja lisää markerit laskenta-asemille
+   */
   useEffect(() => {
     if (!sites.length || !mapRef.current) return;
 

@@ -1,3 +1,17 @@
+/**
+ * Risteyksen yksityiskohtainen näkymä
+ * 
+ * Tämä sivu näyttää TPM-risteyksen liikennetiedot:
+ * - Reaaliaikaista dataa valitulta ilmaisimelta tai kaikista ilmaisimista
+ * - Liikennemääriä eri suunnilta
+ * - Mahdollisuuden vaihtaa risteystä ja ilmaisinta
+ * - Risteyksen karttakuvan (jos saatavilla)
+ * 
+ * Käyttää:
+ * - TPM API:a liikennetietojen hakemiseen
+ * - CSV-tiedostoa risteysten sijaintitietoihin
+ */
+
 "use client";
 
 import Image from "next/image";
@@ -5,34 +19,48 @@ import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+/**
+ * Liikennedata yhdeltä ilmaisimelta
+ */
 interface TrafficData {
-  devName: string;
-  measuredTime: string;
+  devName: string;          // Laitteen nimi
+  measuredTime: string;     // Mittausaika
   values: Array<{
-    sgName: string;
-    detName: string;
-    name: string;
-    value: number;
-    unit: string;
-    interval: number;
-    reliabValue: number;
+    sgName: string;         // Signal group nimi
+    detName: string;        // Ilmaisimen nimi
+    name: string;           // Mittauksen nimi
+    value: number;          // Mitattu arvo
+    unit: string;           // Yksikkö
+    interval: number;       // Mittausväli
+    reliabValue: number;    // Luotettavuusarvo
   }>;
 }
 
+/**
+ * Kaikkien ilmaisimien data
+ */
 interface AllDetectorsData {
   [detectorId: string]: TrafficData | null;
 }
 
+/**
+ * Risteyksen perustiedot
+ */
 interface IntersectionData {
-  id: string;
-  location: string;
-  north: string;
-  east: string;
-  uid: string; // unique per CSV row to support duplicate ids
+  id: string;        // Risteyksen tunniste
+  location: string;  // Sijainti/nimi
+  north: string;     // Pohjoiskoordinaatti
+  east: string;      // Itäkoordinaatti
+  uid: string;       // Uniikki tunniste
 }
 
+/**
+ * HomeContent - Pääkomponentti risteyksen tietojen näyttämiseen
+ */
 function HomeContent() {
   const searchParams = useSearchParams();
+  
+  // Tilanhallinta
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   const [allDetectorsData, setAllDetectorsData] = useState<AllDetectorsData>({});
   const [intersections, setIntersections] = useState<IntersectionData[]>([]);
@@ -40,19 +68,20 @@ function HomeContent() {
   const [error, setError] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   
-  // Get parameters from URL, with defaults
+  // URL-parametrit (oletusarvot jos ei määritelty)
   const deviceId = searchParams.get('device') || 'OULU002';
-  const detectorId = searchParams.get('detector') || ''; // No default detector
-  // Optional unique id to select a specific CSV row when device ids are duplicated
-  const devUid = searchParams.get('devUid') || '';
+  const detectorId = searchParams.get('detector') || ''; // Tyhjä = kaikki ilmaisimet
+  const devUid = searchParams.get('devUid') || ''; // Uniikki ID duplikaatti-ID:iden varalta
 
-  // Load intersections data
+  /**
+   * Lataa risteysdatan CSV-tiedostosta
+   */
   useEffect(() => {
     const loadIntersections = async () => {
       try {
         const response = await fetch('/intersections.csv');
         const csvText = await response.text();
-        const lines = csvText.split('\n').slice(1); // Skip header
+        const lines = csvText.split('\n').slice(1); // Ohita otsikkorivi
         const intersectionsData = lines
           .map(line => line.trim())
           .filter(line => line)
@@ -67,7 +96,7 @@ function HomeContent() {
               uid: `${trimmedId || 'unknown'}_${idx}`,
             } as IntersectionData;
           })
-          .filter(item => item.id); // Filter out invalid entries
+          .filter(item => item.id); // Suodata virheelliset rivit
         
         setIntersections(intersectionsData);
       } catch (err) {
@@ -78,6 +107,11 @@ function HomeContent() {
     loadIntersections();
   }, []);
 
+  /**
+   * Hakee liikennetiedot TPM API:sta
+   * Jos detectorId on määritelty, hakee vain sen ilmaisimen tiedot.
+   * Muuten hakee kaikkien ilmaisimien tiedot.
+   */
   useEffect(() => {
     const fetchTrafficData = async () => {
       setLoading(true);
@@ -87,7 +121,7 @@ function HomeContent() {
 
       try {
         if (detectorId) {
-          // Fetch data for specific detector
+          // Hae tietyn ilmaisimen data
           const apiUrl = `https://api.oulunliikenne.fi/tpm/kpi/traffic-volume/${deviceId}/${detectorId}`;
           const response = await fetch(apiUrl);
           if (!response.ok) {
@@ -96,7 +130,7 @@ function HomeContent() {
           const data = await response.json();
           setTrafficData(data);
         } else {
-          // Fetch data for all detectors by omitting the detector ID from API URL
+          // Hae kaikkien ilmaisimien data
           const apiUrl = `https://api.oulunliikenne.fi/tpm/kpi/traffic-volume/${deviceId}`;
           const response = await fetch(apiUrl);
           

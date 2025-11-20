@@ -1,3 +1,15 @@
+/**
+ * Risteyskuvien tarkistustyökalu
+ * 
+ * Tämä skripti vertaa CSV-tiedostossa olevia risteyksen ID:itä
+ * public/intersections/ -kansiossa oleviin kuviin ja raportoi:
+ * - Mitkä risteyksistä löytyy kuva
+ * - Mitkä risteyksistä puuttuu kuva
+ * - Mitkä kuvat ovat ylimääräisiä (ei vastaavaa ID:tä CSV:ssä)
+ * 
+ * Käyttö: node scripts/check-images.js
+ */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -51,6 +63,7 @@ uniqueIds.forEach(id => {
   }
 });
 
+// Tulosta yhteenveto
 console.log('\n=== YHTEENVETO ===');
 console.log(`Yhteensä risteysten ID:itä: ${uniqueIds.length}`);
 console.log(`Kuvia löytyy: ${found.length}`);

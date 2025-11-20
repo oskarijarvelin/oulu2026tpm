@@ -1,29 +1,50 @@
+/**
+ * Karttanäkymä (vaihtoehtoinen reitti)
+ * 
+ * Tämä on vaihtoehtoinen karttanäkymä TPM-risteyksille.
+ * Toiminnallisuus on identtinen pääsivun (app/page.tsx) kanssa.
+ * 
+ * Käyttää:
+ * - Leaflet-kirjastoa karttojen näyttämiseen
+ * - Proj4-kirjastoa koordinaattimuunnoksiin (TM35FIN → WGS84)
+ * - CSV-dataa risteysten sijaintitietoihin
+ */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import proj4 from "proj4";
 
+/**
+ * Risteyksen tiedot
+ */
 interface IntersectionData {
   id: string;
   location: string;
   north: string;
   east: string;
-  uid: string; // unique per CSV row to support duplicate ids
+  uid: string; // Uniikki tunniste duplikaatti-ID:iden varalta
 }
 
-// Convert TM35FIN coordinates to WGS84 using proper projection
+/**
+ * Muuntaa TM35FIN-koordinaatit WGS84-koordinaateiksi
+ * 
+ * @param north - Pohjoiskoordinaatti metreinä
+ * @param east - Itäkoordinaatti metreinä
+ * @returns Koordinaatit WGS84-muodossa (lat, lon)
+ */
 function tm35finToWgs84(north: number, east: number) {
   try {
-    // Define TM35FIN (EPSG:3067) projection
+    // Määrittele TM35FIN (EPSG:3067) projektio
     const tm35fin = '+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs';
-    // Define WGS84 (EPSG:4326) projection  
+    // Määrittele WGS84 (EPSG:4326) projektio  
     const wgs84 = '+proj=longlat +datum=WGS84 +no_defs +type=crs';
     
-    // Transform coordinates
+    // Muunna koordinaatit
     const [lon, lat] = proj4(tm35fin, wgs84, [east, north]);
     
-    // Validate coordinates are in reasonable range for Finland
+    // Validoi että koordinaatit ovat järkevällä alueella Suomessa
     if (lat < 59 || lat > 71 || lon < 19 || lon > 32) {
       console.warn(`Coordinates out of range for Finland: lat=${lat}, lon=${lon} from TM35FIN(${north}, ${east})`);
     }
@@ -31,13 +52,16 @@ function tm35finToWgs84(north: number, east: number) {
     return { lat, lon };
   } catch (error) {
     console.error('Coordinate transformation error:', error);
-    // Fallback to approximate conversion
+    // Varasuunnitelma: likimääräinen muunnos
     const lat = 60 + (north - 7200000) / 111000;
     const lon = 25 + (east - 400000) / 55800;
     return { lat, lon };
   }
 }
 
+/**
+ * MapPage - Karttanäkymän pääkomponentti
+ */
 export default function MapPage() {
   const [intersections, setIntersections] = useState<IntersectionData[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<IntersectionData | null>(null);
