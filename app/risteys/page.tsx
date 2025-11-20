@@ -348,7 +348,7 @@ function HomeContent() {
                   <h3 className="text-base sm:text-lg font-medium mb-2 text-gray-900 dark:text-white">
                     Yhteenveto
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div>
                       <span className="font-medium text-gray-900 dark:text-white">Kokonaisliikennemäärä:</span>{' '}
                       <span className="text-green-600 dark:text-green-400">
@@ -359,13 +359,44 @@ function HomeContent() {
                     </div>
                     <div>
                       <span className="font-medium text-gray-900 dark:text-white">Viimeisin päivitys:</span>{' '}
-                      <span className="text-gray-600 dark:text-gray-400">
+                      <span className={(() => {
+                        const latestTime = Object.values(allDetectorsData)
+                          .filter(Boolean)
+                          .map(data => new Date(data!.measuredTime))
+                          .sort((a, b) => b.getTime() - a.getTime())[0];
+                        if (!latestTime) return "text-gray-600 dark:text-gray-400";
+                        const now = new Date();
+                        const diffMinutes = (now.getTime() - latestTime.getTime()) / (1000 * 60);
+                        return diffMinutes > 15 ? "text-red-600 dark:text-red-400 font-semibold" : "text-gray-600 dark:text-gray-400";
+                      })()}>
                         {(() => {
                           const latestTime = Object.values(allDetectorsData)
                             .filter(Boolean)
                             .map(data => new Date(data!.measuredTime))
                             .sort((a, b) => b.getTime() - a.getTime())[0];
                           return latestTime ? latestTime.toLocaleTimeString('fi-FI') : '-';
+                        })()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white">Kokonaisluotettavuus:</span>{' '}
+                      <span className={(() => {
+                        const minReliability = Math.min(
+                          ...Object.values(allDetectorsData)
+                            .filter(Boolean)
+                            .map(data => data?.values[0]?.reliabValue || 5)
+                        );
+                        return minReliability >= 4 ? "text-green-600 dark:text-green-400" : 
+                               minReliability >= 3 ? "text-yellow-600 dark:text-yellow-400" : 
+                               "text-red-600 dark:text-red-400";
+                      })()}>
+                        {(() => {
+                          const minReliability = Math.min(
+                            ...Object.values(allDetectorsData)
+                              .filter(Boolean)
+                              .map(data => data?.values[0]?.reliabValue || 5)
+                          );
+                          return `${minReliability} / 5`;
                         })()}
                       </span>
                     </div>
