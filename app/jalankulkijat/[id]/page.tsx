@@ -41,6 +41,7 @@ function SiteDetailsContent() {
     const today = new Date();
     return today.toISOString().split('T')[0] + 'T00:00:00';
   });
+  const [endDate, setEndDate] = useState<string>('');
   const [tooltipData, setTooltipData] = useState<{ x: number; y: number; dataIndex: number } | null>(null);
 
   // Parse channels from URL parameter
@@ -83,7 +84,7 @@ function SiteDetailsContent() {
                     id: "${channel.siteId}",
                     domain: ${domain},
                     step: ${step},
-                    begin: "${beginDate}"
+                    begin: "${beginDate}"${endDate ? `,\n                    end: "${endDate}"` : ''}
                   ) {
                     date
                     counts
@@ -119,7 +120,7 @@ function SiteDetailsContent() {
     };
 
     fetchData();
-  }, [channels, domain, step, beginDate]);
+  }, [channels, domain, step, beginDate, endDate]);
 
   // Get channel label in Finnish
   const getChannelLabel = (name: string) => {
@@ -215,7 +216,7 @@ function SiteDetailsContent() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Suodattimet
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Aikaväli
@@ -239,6 +240,17 @@ function SiteDetailsContent() {
                 type="date"
                 value={beginDate.split('T')[0]}
                 onChange={(e) => setBeginDate(`${e.target.value}T00:00:00`)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Loppupäivämäärä (valinnainen)
+              </label>
+              <input
+                type="date"
+                value={endDate.split('T')[0]}
+                onChange={(e) => setEndDate(e.target.value ? `${e.target.value}T23:59:59` : '')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
