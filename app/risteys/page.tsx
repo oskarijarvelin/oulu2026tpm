@@ -152,18 +152,31 @@ function HomeContent() {
     fetchTrafficData();
   }, [deviceId, detectorId]);
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Oulu2026 TPM
-          </h1>
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                Oulu2026 TPM
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                Risteystiedot
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        <div className="flex flex-col gap-4 sm:gap-6 w-full">
           
-          <div className="w-full max-w-md space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="space-y-3">
+          <div className="w-full max-w-3xl space-y-3 sm:space-y-4">
+            <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="space-y-2 sm:space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Valitse laite:
                   </label>
                   <select
@@ -181,7 +194,7 @@ function HomeContent() {
                       }
                       window.location.href = newUrl.toString();
                     }}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                   >
                     {intersections.map((intersection) => (
                       <option key={intersection.uid} value={intersection.uid}>
@@ -192,7 +205,7 @@ function HomeContent() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Tunnistin:
                   </label>
                   <select
@@ -206,7 +219,7 @@ function HomeContent() {
                       }
                       window.location.href = newUrl.toString();
                     }}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Kaikki tunnistimet</option>
                     {Object.keys(allDetectorsData)
@@ -217,7 +230,7 @@ function HomeContent() {
                         </option>
                       ))}
                   </select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {detectorId ? `Näytetään vain tunnistin: ${detectorId}` : 'Näytetään kaikki saatavilla olevat tunnistimet'}
                   </p>
                 </div>
@@ -226,34 +239,34 @@ function HomeContent() {
           </div>
           
           {loading && (
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
               Ladataan liikennetietoja...
             </p>
           )}
           
           {error && (
-            <p className="text-lg text-red-600 dark:text-red-400">
+            <p className="text-sm md:text-base text-red-600 dark:text-red-400">
               Virhe: {error}
             </p>
           )}
           
           {trafficData && detectorId && (
-            <div className="max-w-md space-y-4">
-              <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2 text-black dark:text-zinc-50">
+            <div className="w-full max-w-3xl space-y-3 sm:space-y-4">
+              <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {trafficData.devName}
                 </h2>
-                <p className="text-zinc-600 dark:text-zinc-400">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   {new Date(trafficData.measuredTime).toLocaleString('fi-FI')}
                 </p>
               </div>
               
               {trafficData.values.map((value, index) => (
-                <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h3 className="text-lg font-medium mb-2 text-black dark:text-zinc-50">
+                <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h3 className="text-base sm:text-lg font-medium mb-2 text-gray-900 dark:text-white">
                     {value.detName} ({value.sgName})
                   </h3>
-                  <div className="space-y-1 text-zinc-700 dark:text-zinc-300">
+                  <div className="space-y-1 text-sm sm:text-base text-gray-700 dark:text-gray-300">
                     <p><span className="font-medium">Liikennemäärä:</span> {value.value} ajoneuvoa</p>
                   </div>
                 </div>
@@ -262,16 +275,16 @@ function HomeContent() {
           )}
 
           {!detectorId && Object.keys(allDetectorsData).length > 0 && (
-            <div className="w-full max-w-4xl space-y-4">
+            <div className="w-full space-y-3 sm:space-y-4">
               {/* Show location/coords for the selected CSV row (supports duplicates) */}
-              <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2 text-black dark:text-zinc-50">
+              <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {(() => {
                     const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
                     return selected?.location || deviceId;
                   })()}
                 </h2>
-                <p className="text-zinc-600 dark:text-zinc-400">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   {(() => {
                     const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
                     return `ID: ${deviceId} | Sijainti: N: ${selected?.north || '-'}, E: ${selected?.east || '-'}`;
@@ -279,61 +292,48 @@ function HomeContent() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                  <table className="w-full text-sm sm:text-base">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Tunnistin
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Liikennemäärä
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Luotettavuus
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Toiminnot
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-zinc-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                       {Object.entries(allDetectorsData).map(([detector, data]) => (
                         <tr key={detector} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-all">
                             {detector}
                           </td>
                           {data ? (
                             <>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                  {data.values[0]?.value || 0} ajoneuvoa
+                              <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-gray-900 dark:text-white">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                  {data.values[0]?.value || 0} autoa
                                 </span>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 {data.values[0]?.reliabValue || 0} / 5
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                <Link
-                                  href={`/risteys?device=${deviceId}${devUid ? `&devUid=${devUid}` : ''}&detector=${detector}`}
-                                   className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200"
-                                 >
-                                   Näytä yksityiskohdat
-                                 </Link>
-                               </td>
-                             </>
-                           ) : (
+                            </>
+                          ) : (
                             <>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">-</td>
+                              <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                                   Ei dataa
                                 </span>
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
-                              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
+                              <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">-</td>
                             </>
                           )}
                         </tr>
@@ -344,13 +344,13 @@ function HomeContent() {
               </div>
 
               {Object.values(allDetectorsData).filter(Boolean).length > 0 && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h3 className="text-lg font-medium mb-2 text-black dark:text-zinc-50">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h3 className="text-base sm:text-lg font-medium mb-2 text-gray-900 dark:text-white">
                     Yhteenveto
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div>
-                      <span className="font-medium">Kokonaisliikennemäärä:</span>{' '}
+                      <span className="font-medium text-gray-900 dark:text-white">Kokonaisliikennemäärä:</span>{' '}
                       <span className="text-green-600 dark:text-green-400">
                         {Object.values(allDetectorsData)
                           .filter(Boolean)
@@ -358,7 +358,7 @@ function HomeContent() {
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium">Viimeisin päivitys:</span>{' '}
+                      <span className="font-medium text-gray-900 dark:text-white">Viimeisin päivitys:</span>{' '}
                       <span className="text-gray-600 dark:text-gray-400">
                         {(() => {
                           const latestTime = Object.values(allDetectorsData)
@@ -374,9 +374,9 @@ function HomeContent() {
               )}
 
               {/* Risteyksen kuva */}
-              <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="p-4">
-                  <h3 className="text-lg font-medium mb-3 text-black dark:text-zinc-50">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="p-3 sm:p-4">
+                  <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-900 dark:text-white">
                     Risteyksen kuva
                   </h3>
                   <div 
@@ -403,7 +403,7 @@ function HomeContent() {
                       }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
                     Klikkaa kuvaa nähdäksesi sen suurempana
                   </p>
                 </div>
@@ -412,13 +412,13 @@ function HomeContent() {
               {/* Image Modal */}
               {imageModalOpen && (
                 <div 
-                  className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+                  className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-2 sm:p-4"
                   onClick={() => setImageModalOpen(false)}
                 >
-                  <div className="relative max-w-7xl max-h-full">
+                  <div className="relative max-w-7xl max-h-full w-full">
                     <button
                       onClick={() => setImageModalOpen(false)}
-                      className="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full w-10 h-10 flex items-center justify-center text-2xl z-10"
+                      className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xl sm:text-2xl z-10"
                     >
                       ✕
                     </button>
@@ -436,16 +436,18 @@ function HomeContent() {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row mt-10">
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3 sm:flex-row mt-6 md:mt-8">
           <button
             onClick={() => window.location.reload()}
-            className="flex h-12 w-auto items-center justify-center gap-2 rounded-full bg-blue-600 px-5 text-white transition-colors hover:bg-blue-700 "
+            className="flex h-10 md:h-12 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 md:px-5 text-sm md:text-base text-white transition-colors hover:bg-blue-700 font-medium"
           >
             Päivitä tiedot
           </button>
           <Link
             href="/"
-            className="flex h-12 w-auto items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700"
+            className="flex h-10 md:h-12 items-center justify-center rounded-lg bg-green-600 px-4 md:px-5 text-sm md:text-base text-white transition-colors hover:bg-green-700 font-medium"
           >
             🗺️ Kartta
           </Link>

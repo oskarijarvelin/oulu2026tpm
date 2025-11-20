@@ -275,13 +275,13 @@ export default function MapPage() {
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 Oulu2026 TPM
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                 {intersections.length} laitetta löydetty
               </p>
             </div>
@@ -289,12 +289,12 @@ export default function MapPage() {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
         {/* Sidebar with device list */}
-        <div className="w-1/3 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+        <div className="w-full md:w-1/3 bg-white dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full">
           <div className="p-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Laitteet ({intersections.length})
+              Risteykset ({intersections.length})
             </h2>
             <div className="space-y-2">
               {intersections.map((intersection) => (
@@ -307,22 +307,9 @@ export default function MapPage() {
                   }`}
                   onClick={() => setSelectedDevice(intersection)}
                 >
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {intersection.id}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm md:text-base">
                     {intersection.location}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    N: {intersection.north}, E: {intersection.east}
-                  </div>
-                  <Link
-                    href={`/risteys?device=${intersection.id}&devUid=${intersection.uid}`}
-                    className="inline-block mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Näytä tiedot
-                  </Link>
                 </div>
               ))}
             </div>
@@ -349,17 +336,17 @@ export default function MapPage() {
 
           {/* Selected device info overlay */}
           {selectedDevice && (
-            <div className="absolute top-4 right-4 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-sm z-10">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="absolute top-4 left-4 right-4 md:top-4 md:right-4 md:left-auto bg-white dark:bg-gray-900 p-3 md:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 md:max-w-sm z-10">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm md:text-base">
                 {selectedDevice.id}
               </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2">
                 {selectedDevice.location}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
+              <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 md:mb-3 hidden md:block">
                 Koordinaatit: N: {selectedDevice.north}, E: {selectedDevice.east}
               </p>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 md:mb-3 hidden md:block">
                 {(() => {
                   const coords = tm35finToWgs84(
                     parseFloat(selectedDevice.north),
@@ -371,13 +358,13 @@ export default function MapPage() {
               <div className="flex gap-2">
                 <Link
                   href={`/risteys?device=${selectedDevice.id}&devUid=${selectedDevice.uid}`}
-                  className="flex-1 text-center bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                  className="flex-1 text-center bg-blue-600 text-white px-3 py-1 rounded text-xs md:text-sm hover:bg-blue-700 transition-colors"
                 >
                   Avaa tiedot
                 </Link>
                 <button
                   onClick={() => setSelectedDevice(null)}
-                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-3 py-1 text-xs md:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ✕
                 </button>
