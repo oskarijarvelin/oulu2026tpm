@@ -41,6 +41,7 @@ function SiteDetailsContent() {
     const today = new Date();
     return today.toISOString().split('T')[0] + 'T00:00:00';
   });
+  const [tooltipData, setTooltipData] = useState<{ x: number; y: number; dataIndex: number } | null>(null);
 
   // Parse channels from URL parameter
   useEffect(() => {
@@ -430,6 +431,299 @@ function SiteDetailsContent() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Combined Chart */}
+            <div className="mt-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Yhdistetty kaavio
+              </h2>
+              <div className="relative" style={{ height: '450px' }}>
+                <svg 
+                  viewBox="0 0 1000 450" 
+                  className="w-full h-full" 
+                  preserveAspectRatio="xMidYMid meet"
+                  onMouseLeave={() => setTooltipData(null)}
+                >
+                  {(() => {
+                    // Get all data points and find min/max
+                    const allDataPoints = channelDataList.flatMap(ch => ch.data.map(d => d.counts));
+                    const maxCount = Math.max(...allDataPoints, 1);
+                    const minCount = Math.min(...allDataPoints, 0);
+                    const range = maxCount - minCount || 1;
+
+                    // Chart dimensions
+                    const chartWidth = 900;
+                    const chartHeight = 320;
+                    const marginLeft = 80;
+                    const marginBottom = 60;
+                    const marginTop = 20;
+
+                    // Get the longest dataset for x-axis
+                    const maxDataLength = Math.max(...channelDataList.map(ch => ch.data.length), 1);
+                    const xStep = chartWidth / Math.max(maxDataLength - 1, 1);
+
+                    // Y-axis scaling
+                    const yScale = (value: number) => {
+                      return marginTop + chartHeight - ((value - minCount) / range) * chartHeight;
+                    };
+
+                    // Define colors for each channel
+                    const channelColors = {
+                      'JK_IN': '#2563eb',   // blue-600
+                      'JK_OUT': '#0891b2',  // cyan-600
+                      'PP_IN': '#16a34a',   // green-600
+                      'PP_OUT': '#059669'   // emerald-600
+                    };
+
+                    // Draw grid lines
+                    const gridLines = [];
+                    for (let i = 0; i <= 5; i++) {
+                      const y = marginTop + (chartHeight / 5) * i;
+                      const value = maxCount - (range / 5) * i;
+                      gridLines.push(
+                        <g key={`grid-${i}`}>
+                          <line
+                            x1={marginLeft}
+                            y1={y}
+                            x2={marginLeft + chartWidth}
+                            y2={y}
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            className="text-gray-200 dark:text-gray-700"
+                            strokeDasharray="4"
+                          />
+                          <text
+                            x={marginLeft - 10}
+                            y={y + 4}
+                            textAnchor="end"
+                            className="text-xs fill-gray-600 dark:fill-gray-400"
+                          >
+                            {Math.round(value).toLocaleString('fi-FI')}
+                          </text>
+                        </g>
+                      );
+                    }
+
+                    // Draw lines for each channel
+                    const channelLines = channelDataList.map((channelData, channelIdx) => {
+                      const channelType = 
+                        channelData.channelName.includes('JK_IN') ? 'JK_IN' :
+                        channelData.channelName.includes('JK_OUT') ? 'JK_OUT' :
+                        channelData.channelName.includes('PP_IN') ? 'PP_IN' :
+                        channelData.channelName.includes('PP_OUT') ? 'PP_OUT' : 'JK_IN';
+                      
+                      const color = channelColors[channelType as keyof typeof channelColors];
+                      
+                      const points = channelData.data.map((point, index) => {
+                        const x = marginLeft + index * xStep;
+                        const y = yScale(point.counts);
+                        return `${x},${y}`;
+                      }).join(' ');
+
+                      const pathData = channelData.data.map((point, index) => {
+                        const x = marginLeft + index * xStep;
+                        const y = yScale(point.counts);
+                        return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+                      }).join(' ');
+
+                      return (
+                        <g key={channelIdx}>
+                          <path
+                            d={pathData}
+                            fill="none"
+                            stroke={color}
+                            strokeWidth="2"
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                          />
+                          {/* Draw points */}
+                          {channelData.data.map((point, index) => {
+                            const x = marginLeft + index * xStep;
+                            const y = yScale(point.counts);
+                            return (
+                              <circle
+                                key={index}
+                                cx={x}
+                                cy={y}
+                                r="3"
+                                fill={color}
+                                style={{ cursor: 'pointer' }}
+                                onMouseEnter={(e) => {
+                                  const svg = e.currentTarget.ownerSVGElement;
+                                  if (svg) {
+                                    const pt = svg.createSVGPoint();
+                                    pt.x = e.clientX;
+                                    pt.y = e.clientY;
+                                    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+                                    setTooltipData({ x: svgP.x, y: svgP.y, dataIndex: index });
+                                  }
+                                }}
+                              />
+                            );
+                          })}
+                        </g>
+                      );
+                    });
+
+                    // Draw axes
+                    return (
+                      <>
+                        {gridLines}
+                        
+                        {/* Y-axis */}
+                        <line
+                          x1={marginLeft}
+                          y1={marginTop}
+                          x2={marginLeft}
+                          y2={marginTop + chartHeight}
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="text-gray-400 dark:text-gray-600"
+                        />
+                        
+                        {/* X-axis */}
+                        <line
+                          x1={marginLeft}
+                          y1={marginTop + chartHeight}
+                          x2={marginLeft + chartWidth}
+                          y2={marginTop + chartHeight}
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="text-gray-400 dark:text-gray-600"
+                        />
+
+                        {channelLines}
+
+                        {/* Tooltip */}
+                        {tooltipData !== null && (() => {
+                          const dataIndex = tooltipData.dataIndex;
+                          // Get data for all channels at this index
+                          const tooltipItems = channelDataList.map(ch => ({
+                            label: getChannelLabel(ch.channelName),
+                            value: ch.data[dataIndex]?.counts || 0,
+                            date: ch.data[dataIndex]?.date,
+                            channelType: 
+                              ch.channelName.includes('JK_IN') ? 'JK_IN' :
+                              ch.channelName.includes('JK_OUT') ? 'JK_OUT' :
+                              ch.channelName.includes('PP_IN') ? 'PP_IN' :
+                              ch.channelName.includes('PP_OUT') ? 'PP_OUT' : 'JK_IN'
+                          })).filter(item => item.date);
+
+                          if (tooltipItems.length === 0) return null;
+
+                          const tooltipWidth = 200;
+                          const tooltipHeight = 20 + tooltipItems.length * 20 + 10;
+                          let tooltipX = tooltipData.x + 10;
+                          let tooltipY = tooltipData.y - tooltipHeight / 2;
+
+                          // Keep tooltip within bounds
+                          if (tooltipX + tooltipWidth > marginLeft + chartWidth) {
+                            tooltipX = tooltipData.x - tooltipWidth - 10;
+                          }
+                          if (tooltipY < marginTop) tooltipY = marginTop;
+                          if (tooltipY + tooltipHeight > marginTop + chartHeight) {
+                            tooltipY = marginTop + chartHeight - tooltipHeight;
+                          }
+
+                          return (
+                            <g>
+                              {/* Tooltip background */}
+                              <rect
+                                x={tooltipX}
+                                y={tooltipY}
+                                width={tooltipWidth}
+                                height={tooltipHeight}
+                                fill="white"
+                                stroke="#d1d5db"
+                                strokeWidth="1"
+                                rx="4"
+                                className="dark:fill-gray-800 dark:stroke-gray-600"
+                                style={{ filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))' }}
+                              />
+                              {/* Tooltip date */}
+                              <text
+                                x={tooltipX + 10}
+                                y={tooltipY + 15}
+                                className="text-xs font-semibold fill-gray-900 dark:fill-white"
+                              >
+                                {formatDate(tooltipItems[0].date)}
+                              </text>
+                              {/* Tooltip values */}
+                              {tooltipItems.map((item, idx) => (
+                                <g key={idx}>
+                                  <circle
+                                    cx={tooltipX + 10}
+                                    cy={tooltipY + 30 + idx * 20}
+                                    r="3"
+                                    fill={channelColors[item.channelType as keyof typeof channelColors]}
+                                  />
+                                  <text
+                                    x={tooltipX + 20}
+                                    y={tooltipY + 34 + idx * 20}
+                                    className="text-xs fill-gray-700 dark:fill-gray-300"
+                                  >
+                                    {item.label}:
+                                  </text>
+                                  <text
+                                    x={tooltipX + tooltipWidth - 10}
+                                    y={tooltipY + 34 + idx * 20}
+                                    textAnchor="end"
+                                    className="text-xs font-semibold fill-gray-900 dark:fill-white"
+                                  >
+                                    {item.value.toLocaleString('fi-FI')}
+                                  </text>
+                                </g>
+                              ))}
+                            </g>
+                          );
+                        })()}
+
+                        {/* Legend */}
+                        <g transform={`translate(${marginLeft}, ${marginTop + chartHeight + 40})`}>
+                          {channelDataList.map((channelData, idx) => {
+                            const channelType = 
+                              channelData.channelName.includes('JK_IN') ? 'JK_IN' :
+                              channelData.channelName.includes('JK_OUT') ? 'JK_OUT' :
+                              channelData.channelName.includes('PP_IN') ? 'PP_IN' :
+                              channelData.channelName.includes('PP_OUT') ? 'PP_OUT' : 'JK_IN';
+                            
+                            const color = channelColors[channelType as keyof typeof channelColors];
+                            const xOffset = (idx % 2) * 450;
+                            const yOffset = Math.floor(idx / 2) * 20;
+                            
+                            return (
+                              <g key={idx} transform={`translate(${xOffset}, ${yOffset})`}>
+                                <line
+                                  x1={0}
+                                  y1={0}
+                                  x2={30}
+                                  y2={0}
+                                  stroke={color}
+                                  strokeWidth="3"
+                                />
+                                <circle
+                                  cx={15}
+                                  cy={0}
+                                  r={4}
+                                  fill={color}
+                                />
+                                <text
+                                  x={40}
+                                  y={4}
+                                  className="text-xs fill-gray-700 dark:fill-gray-300"
+                                >
+                                  {getChannelLabel(channelData.channelName)}
+                                </text>
+                              </g>
+                            );
+                          })}
+                        </g>
+                      </>
+                    );
+                  })()}
+                </svg>
+              </div>
             </div>
           </>
         )}

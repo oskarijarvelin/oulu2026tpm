@@ -297,9 +297,10 @@ export default function JalankulkijatPage() {
             </div>
             <Link 
               href="/"
-              className="text-sm md:text-base text-blue-600 dark:text-blue-400 hover:underline"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg transition-colors shadow-sm hover:shadow-md"
             >
-              TPM-data
+              <span className="text-lg">←</span>
+              <span className="text-sm md:text-base font-medium">TPM-data</span>
             </Link>
           </div>
         </div>
