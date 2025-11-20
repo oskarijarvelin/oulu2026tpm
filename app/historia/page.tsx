@@ -450,13 +450,20 @@ export default function HistoriaPage() {
         summary.inCount += inValue;
         summary.outCount += outValue;
         summary.totalCount += allValue;
-
-        // Päivitä viimeisin aika
-        const rowTime = row.timestamp as string;
-        if (new Date(rowTime) > new Date(summary.latestTime)) {
-          summary.latestTime = rowTime;
-        }
       });
+    });
+
+    // Etsi viimeisimmät mittausajat raakadatasta (ei aggregoidusta)
+    uniqueDevices.forEach((deviceId) => {
+      const summary = summaryMap.get(deviceId)!;
+      const deviceData = trafficData.filter(d => d.device_id === deviceId);
+      
+      if (deviceData.length > 0) {
+        const latestRecord = deviceData.reduce((latest, current) => 
+          new Date(current.measured_time) > new Date(latest.measured_time) ? current : latest
+        );
+        summary.latestTime = latestRecord.measured_time;
+      }
     });
 
     // Laske ilmaisimien määrät alkuperäisestä konfiguraatiosta
@@ -665,7 +672,9 @@ export default function HistoriaPage() {
     const timeMap = new Map<string, ChartData>();
 
     deviceData.forEach((record) => {
-      const time = new Date(record.measured_time).toLocaleString('fi-FI', {
+      const date = new Date(record.measured_time);
+      date.setHours(date.getHours() + 2);
+      const time = date.toLocaleString('fi-FI', {
         day: '2-digit',
         month: '2-digit',
         hour: '2-digit',
@@ -685,9 +694,14 @@ export default function HistoriaPage() {
 
   /**
    * Muotoilee aikaleiman luettavaan muotoon
+   * Lisää 2 tuntia koska tietokannassa ajat ovat 2h jäljessä
    */
   function formatTime(isoString: string): string {
-    return new Date(isoString).toLocaleString('fi-FI', {
+    const date = new Date(isoString);
+    // Lisää 2 tuntia
+    date.setHours(date.getHours() + 2);
+    
+    return date.toLocaleString('fi-FI', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -1095,16 +1109,24 @@ export default function HistoriaPage() {
                       angle={-45} 
                       textAnchor="end" 
                       height={100}
-                      tickFormatter={(value) => new Date(value).toLocaleString('fi-FI', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        date.setHours(date.getHours() + 2);
+                        return date.toLocaleString('fi-FI', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        });
+                      }}
                     />
                     <YAxis />
                     <Tooltip 
-                      labelFormatter={(value) => new Date(value).toLocaleString('fi-FI')}
+                      labelFormatter={(value) => {
+                        const date = new Date(value);
+                        date.setHours(date.getHours() + 2);
+                        return date.toLocaleString('fi-FI');
+                      }}
                     />
                     <Legend />
                     <Line
