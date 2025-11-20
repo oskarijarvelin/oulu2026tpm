@@ -281,9 +281,6 @@ export default function MapPage() {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 Oulu2026 TPM
               </h1>
-              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                {intersections.length} laitetta löydetty
-              </p>
             </div>
           </div>
         </div>

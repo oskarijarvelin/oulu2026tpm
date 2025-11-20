@@ -161,9 +161,6 @@ function HomeContent() {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 Oulu2026 TPM
               </h1>
-              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                Risteystiedot
-              </p>
             </div>
             <div className="flex gap-2 sm:gap-3">
               <button
@@ -188,8 +185,8 @@ function HomeContent() {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
         <div className="flex flex-col gap-4 sm:gap-6 w-full">
           
-          <div className="w-full max-w-3xl space-y-3 sm:space-y-4">
-            <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="w-full space-y-3 sm:space-y-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Valitse risteys:
