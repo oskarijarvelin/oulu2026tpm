@@ -186,30 +186,30 @@ function HomeContent() {
     fetchTrafficData();
   }, [deviceId, detectorId]);
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 md:py-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Oulu2026 TPM
               </h1>
             </div>
             <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => window.location.reload()}
-                className="flex h-8 sm:h-9 md:h-10 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-white transition-colors hover:bg-blue-700 font-medium"
+                className="flex h-8 sm:h-9 md:h-10 items-center justify-center gap-1.5 rounded-lg bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300 transition-colors font-medium backdrop-blur-sm shadow-sm"
               >
                 <span className="hidden sm:inline">Päivitä tiedot</span>
                 <span className="sm:hidden">🔄</span>
               </button>
               <Link
                 href="/"
-                className="flex h-8 sm:h-9 md:h-10 items-center justify-center rounded-lg bg-green-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-white transition-colors hover:bg-green-700 font-medium"
+                className="flex h-8 sm:h-9 md:h-10 items-center justify-center gap-1.5 rounded-lg bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300 transition-colors font-medium backdrop-blur-sm shadow-sm"
               >
-                <span className="hidden sm:inline">🗺️ Kartta</span>
-                <span className="sm:hidden">🗺️</span>
+                <span className="text-lg">←</span>
+                <span className="hidden sm:inline">Takaisin</span>
               </Link>
             </div>
           </div>
@@ -220,7 +220,7 @@ function HomeContent() {
         <div className="flex flex-col gap-4 sm:gap-6 w-full">
           
           <div className="w-full space-y-3 sm:space-y-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-blue-200 dark:border-blue-800 shadow-lg">
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Valitse risteys:
@@ -240,7 +240,7 @@ function HomeContent() {
                     }
                     window.location.href = newUrl.toString();
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm sm:text-base bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                 >
                   {intersections.map((intersection) => (
                     <option key={intersection.uid} value={intersection.uid}>
@@ -266,7 +266,7 @@ function HomeContent() {
           
           {trafficData && detectorId && (
             <div className="w-full max-w-3xl space-y-3 sm:space-y-4">
-              <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {trafficData.devName}
                 </h2>
@@ -276,7 +276,7 @@ function HomeContent() {
               </div>
               
               {trafficData.values.map((value, index) => (
-                <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div key={index} className="bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-blue-200 dark:border-blue-800 shadow-lg">
                   <h3 className="text-base sm:text-lg font-medium mb-2 text-gray-900 dark:text-white">
                     {value.detName} ({value.sgName})
                   </h3>
@@ -291,7 +291,7 @@ function HomeContent() {
           {!detectorId && Object.keys(allDetectorsData).length > 0 && (
             <div className="w-full space-y-3 sm:space-y-4">
               {/* Show location/coords for the selected CSV row (supports duplicates) */}
-              <div className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   {(() => {
                     const selected = devUid ? intersections.find(i => i.uid === devUid) : intersections.find(i => i.id === deviceId);
@@ -306,7 +306,7 @@ function HomeContent() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm sm:text-base">
                     <thead className="bg-gray-50 dark:bg-gray-800">
@@ -433,7 +433,7 @@ function HomeContent() {
               )}
 
               {/* Risteyksen kuva */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="p-3 sm:p-4">
                   <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-900 dark:text-white">
                     Risteyksen kuva
@@ -498,10 +498,10 @@ function HomeContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">GitHub</a>
           </p>
         </div>
       </footer>
@@ -512,9 +512,9 @@ function HomeContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black font-sans">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
             Ladataan...
           </h1>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>

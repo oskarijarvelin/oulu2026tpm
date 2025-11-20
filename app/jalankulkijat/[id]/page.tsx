@@ -231,13 +231,13 @@ function SiteDetailsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 md:py-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {siteName}
               </h1>
               <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -247,18 +247,19 @@ function SiteDetailsContent() {
             <div className="flex gap-2">
               <Link 
                 href="/jalankulkijat"
-                className="text-sm md:text-base text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium backdrop-blur-sm shadow-sm"
               >
-                ← Takaisin
+                <span className="text-lg">←</span>
+                <span className="hidden sm:inline">Takaisin</span>
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="bg-white dark:bg-gray-900 max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8">
         {/* Controls */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Suodattimet
           </h2>
@@ -306,22 +307,22 @@ function SiteDetailsContent() {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Ladataan tietoja...</p>
           </div>
         ) : error ? (
-          <div className="p-8 text-center bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : channelDataList.length === 0 ? (
-          <div className="p-8 text-center bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-8 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
             <p className="text-gray-600 dark:text-gray-400">Ei dataa valitulla aikavälillä</p>
           </div>
         ) : (
           <>
             {/* Statistics table */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
               <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Yhteenveto
@@ -381,7 +382,7 @@ function SiteDetailsContent() {
               {/* Jalankulkijat taulukko */}
               {(channelDataList.some(ch => ch.channelName.includes('JK_IN')) || 
                 channelDataList.some(ch => ch.channelName.includes('JK_OUT'))) && (
-                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Jalankulkijat
@@ -438,7 +439,7 @@ function SiteDetailsContent() {
               {/* Pyöräilijät taulukko */}
               {(channelDataList.some(ch => ch.channelName.includes('PP_IN')) || 
                 channelDataList.some(ch => ch.channelName.includes('PP_OUT'))) && (
-                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Pyöräilijät
@@ -494,7 +495,7 @@ function SiteDetailsContent() {
             </div>
 
             {/* Combined Chart */}
-            <div className="mt-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="mt-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Yhdistetty kaavio
               </h2>
@@ -790,10 +791,10 @@ function SiteDetailsContent() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8">
+      <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 mt-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">GitHub</a>
           </p>
         </div>
       </footer>
@@ -804,9 +805,9 @@ function SiteDetailsContent() {
 export default function SiteDetailsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
             Ladataan tietoja...
           </h1>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>

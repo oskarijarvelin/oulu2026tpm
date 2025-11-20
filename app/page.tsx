@@ -298,9 +298,9 @@ export default function MapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
             Ladataan karttaa...
           </h1>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -310,42 +310,51 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 md:py-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Oulu2026 TPM
               </h1>
             </div>
-            <Link 
-              href="/jalankulkijat"
-              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm md:text-base transition-colors flex items-center gap-2"
-            >
-              <span className="hidden sm:inline">🚶 Jalankulkijat</span>
-              <span className="sm:hidden">🚶</span>
-            </Link>
+            <div className="flex gap-2">
+              <Link 
+                href="/historia"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium backdrop-blur-sm shadow-sm"
+              >
+                <span className="hidden sm:inline">📊 Historia</span>
+                <span className="sm:hidden">📊</span>
+              </Link>
+              <Link 
+                href="/jalankulkijat"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium backdrop-blur-sm shadow-sm"
+              >
+                <span className="hidden sm:inline">🚶 Jalankulkijat</span>
+                <span className="sm:hidden">🚶</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
         {/* Sidebar with device list */}
-        <div className="w-full md:w-1/3 bg-white dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full">
+        <div className="w-full md:w-1/3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full shadow-lg">
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Risteykset ({intersections.length})
             </h2>
             <div className="space-y-2">
               {intersections.map((intersection) => (
                 <div
                   key={intersection.uid}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                  className={`p-3 rounded-xl border cursor-pointer transition-all shadow-sm hover:shadow-md ${
                     selectedDevice?.uid === intersection.uid
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 ring-2 ring-blue-500/20'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                   onClick={() => setSelectedDevice(intersection)}
                 >
@@ -378,14 +387,14 @@ export default function MapPage() {
 
           {/* Selected device info overlay */}
           {selectedDevice && (
-            <div className="absolute top-4 left-4 right-4 md:top-4 md:right-4 md:left-auto bg-white dark:bg-gray-900 p-3 md:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 md:max-w-sm z-10">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm md:text-base">
+            <div className="absolute top-4 left-4 right-4 md:top-4 md:right-4 md:left-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-xl border-2 border-blue-300 dark:border-blue-700 md:max-w-sm z-10">
+              <h4 className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 text-sm md:text-base">
                 {selectedDevice.id}
               </h4>
-              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 mb-2 font-medium">
                 {selectedDevice.location}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 md:mb-3 hidden md:block">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 md:mb-3 hidden md:block">
                 Koordinaatit: N: {selectedDevice.north}, E: {selectedDevice.east}
               </p>
               <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 md:mb-3 hidden md:block">
@@ -400,13 +409,13 @@ export default function MapPage() {
               <div className="flex gap-2">
                 <Link
                   href={`/risteys?device=${selectedDevice.id}&devUid=${selectedDevice.uid}`}
-                  className="flex-1 text-center bg-blue-600 text-white px-3 py-1 rounded text-xs md:text-sm hover:bg-blue-700 transition-colors"
+                  className="flex-1 text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg text-xs md:text-sm hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm font-medium"
                 >
                   Avaa tiedot
                 </Link>
                 <button
                   onClick={() => setSelectedDevice(null)}
-                  className="px-3 py-1 text-xs md:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-3 py-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
                   ✕
                 </button>
@@ -417,10 +426,10 @@ export default function MapPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">GitHub</a>
           </p>
         </div>
       </footer>

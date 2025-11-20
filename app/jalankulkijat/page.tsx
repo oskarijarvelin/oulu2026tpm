@@ -301,9 +301,9 @@ export default function JalankulkijatPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-black dark:text-white mb-4">
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
             Ladataan laskenta-asemia...
           </h1>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
@@ -313,22 +313,22 @@ export default function JalankulkijatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 md:py-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Jalankulkijat ja Pyöräilijät
               </h1>
             </div>
             <Link 
               href="/"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg transition-colors shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium backdrop-blur-sm shadow-sm"
             >
               <span className="text-lg">←</span>
-              <span className="text-sm md:text-base font-medium">TPM-data</span>
+              <span className="hidden sm:inline">Takaisin</span>
             </Link>
           </div>
         </div>
@@ -336,19 +336,19 @@ export default function JalankulkijatPage() {
 
       <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
         {/* Sidebar with sites list */}
-        <div className="w-full md:w-1/3 bg-white dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full">
+        <div className="w-full md:w-1/3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full">
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Laskenta-asemat ({sites.length})
             </h2>
             <div className="space-y-2">
               {sites.filter(site => site && site.id).map((site) => (
                 <div
                   key={site.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
                     selectedSite?.id === site.id
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg'
+                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:shadow-md'
                   }`}
                   onClick={() => setSelectedSite(site)}
                 >
@@ -381,14 +381,14 @@ export default function JalankulkijatPage() {
 
           {/* Selected site info overlay */}
           {selectedSite && (
-            <div className="absolute top-4 left-4 right-4 md:top-4 md:right-4 md:left-auto bg-white dark:bg-gray-900 p-3 md:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 md:max-w-sm z-10">
+            <div className="absolute top-4 left-4 right-4 md:top-4 md:right-4 md:left-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-xl border-2 border-gray-300 dark:border-gray-600 md:max-w-sm z-10">
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-semibold text-gray-900 dark:text-white text-sm md:text-base">
                   {selectedSite.name}
                 </h4>
                 <button
                   onClick={() => setSelectedSite(null)}
-                  className="px-2 py-1 text-xs md:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-2 py-1 text-xs md:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                 >
                   ✕
                 </button>
@@ -416,7 +416,7 @@ export default function JalankulkijatPage() {
               <div className="mt-4">
                 <Link
                   href={`/jalankulkijat/${selectedSite.siteId}?domain=${selectedSite.domain}&name=${encodeURIComponent(selectedSite.name)}&channels=${encodeURIComponent(JSON.stringify(selectedSite.channels.map(ch => ({ siteId: ch.siteId, name: ch.name }))))}`}
-                  className="block w-full text-center bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors"
+                  className="block w-full text-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors shadow-sm"
                 >
                   Näytä tiedot →
                 </Link>
@@ -427,10 +427,10 @@ export default function JalankulkijatPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline transition-colors">GitHub</a>
           </p>
         </div>
       </footer>
