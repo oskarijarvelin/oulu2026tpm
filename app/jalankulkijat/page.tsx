@@ -397,6 +397,15 @@ export default function JalankulkijatPage() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            &copy; {new Date().getFullYear()} Oskari Järvelin | <a href="https://wp.oulunliikenne.fi/avoin-data/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Avoin data</a> | <a href="https://github.com/oskarijarvelin/oulu2026tpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

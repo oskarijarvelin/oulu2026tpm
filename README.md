@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Oulu 2026 TPM - Liikenne- ja laskenta-asemien visualisointisovellus
 
-## Getting Started
+Interaktiivinen Next.js-sovellus Oulun liikenteen ja jalankulkijoiden/pyöräilijöiden seurantaan. Sovellus visualisoi reaaliaikaista dataa TPM-risteyksistä ja Eco Counter -laskenta-asemilta.
 
-First, run the development server:
+## Ominaisuudet
+
+### 🚦 TPM-risteysdata
+- Interaktiivinen kartta TPM-risteyksistä Oulussa
+- Reaaliaikainen liikennedata eri ilmaisimilla
+- Yksityiskohtainen näkymä risteyskohtaiseen dataan
+- Suodattimet ajanjaksojen tarkasteluun
+
+### 🚶‍♂️ Jalankulkija- ja pyöräilijälaskennat
+- Eco Counter -laskenta-asemien karttanäkymä
+- Yksityiskohtaiset tilastot ja graafit
+- Interaktiiviset kaaviot tooltipeilla
+- Monikanavadata (saapuvat/poistuvat jalankulkijat ja pyöräilijät)
+- Joustavat aikavälit: 15 min, tunti, päivä, viikko, kuukausi, vuosi
+- Vapaavalintaiset alku- ja loppupäivämäärät
+
+## Teknologiat
+
+- **Next.js 16.0.3** - React-pohjainen web-framework
+- **TypeScript** - Tyypitetty JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Leaflet** - Interaktiiviset kartat
+- **GraphQL** - API-kyselyt Oulun liikenteen avoimeen dataan
+- **Proj4** - Koordinaattimuunnokset (TM35FIN → WGS84)
+
+## Käynnistäminen
+
+Asenna riippuvuudet:
+
+```bash
+npm install
+```
+
+Käynnistä kehityspalvelin:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Avaa [http://localhost:3000](http://localhost:3000) selaimessa.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Sivurakenne
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` - TPM-risteysten karttanäkymä
+- `/jalankulkijat` - Laskenta-asemien karttanäkymä
+- `/jalankulkijat/[id]` - Yksittäisen laskenta-aseman yksityiskohtainen näkymä
+- `/risteys` - Risteyskohtainen datanäkymä
 
-## Learn More
+## API:t
 
-To learn more about Next.js, take a look at the following resources:
+Sovellus käyttää Oulun liikenteen avointa dataa:
+- **GraphQL API**: `https://api.oulunliikenne.fi/proxy/graphql`
+- **Risteysdata**: CSV-muotoinen TPM-data
+- **Laskenta-asemat**: Eco Counter -data
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Lisätietoja
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Oulun liikenteen avoin data](https://wp.oulunliikenne.fi/avoin-data/)
+- [Next.js dokumentaatio](https://nextjs.org/docs)
 
-## Deploy on Vercel
+## Tekijä
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© 2025 Oskari Järvelin
