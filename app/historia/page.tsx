@@ -193,28 +193,42 @@ export default function HistoriaPage() {
 
         // Määritä aikaväli
         let timeFilter = new Date();
-        switch (timeRange) {
-          case '24h':
-            timeFilter.setHours(timeFilter.getHours() - 24);
-            break;
-          case '7d':
-            timeFilter.setDate(timeFilter.getDate() - 7);
-            break;
-          case '30d':
-            timeFilter.setDate(timeFilter.getDate() - 30);
-            break;
-          case 'all':
-            timeFilter = new Date(0); // Kaikki data
-            break;
+        
+        // Jos käyttäjä on asettanut startDate, käytä sitä
+        if (startDate) {
+          timeFilter = new Date(startDate);
+        } else {
+          // Muuten käytä timeRange-valintaa
+          switch (timeRange) {
+            case '24h':
+              timeFilter.setHours(timeFilter.getHours() - 24);
+              break;
+            case '7d':
+              timeFilter.setDate(timeFilter.getDate() - 7);
+              break;
+            case '30d':
+              timeFilter.setDate(timeFilter.getDate() - 30);
+              break;
+            case 'all':
+              timeFilter = new Date(0); // Kaikki data
+              break;
+          }
         }
 
         // Hae data Supabasesta
-        const { data, error: fetchError } = await supabase
+        let query = supabase
           .from('traffic_data')
           .select('*')
           .gte('measured_time', timeFilter.toISOString())
           .order('measured_time', { ascending: false })
-          .limit(10000); // Rajoita maksimimäärää
+          .limit(50000); // Nostettu rajaa jos haetaan pidemmältä ajalta
+        
+        // Jos endDate asetettu, rajoita siihen
+        if (endDate) {
+          query = query.lte('measured_time', new Date(endDate).toISOString());
+        }
+
+        const { data, error: fetchError } = await query;
 
         if (fetchError) throw fetchError;
 
@@ -241,7 +255,7 @@ export default function HistoriaPage() {
     }
 
     fetchData();
-  }, [timeRange]);
+  }, [timeRange, startDate, endDate]);
 
   /**
    * Laskee tilastot laitteittain ja suunnittain (IN/OUT)
@@ -506,49 +520,12 @@ export default function HistoriaPage() {
       filteredData = filteredData.filter(d => filteredDeviceIds.includes(d.device_id));
     }
     
-    // Jos ei ole asetettu mitään aikasuodatinta, käytä vain viimeisintä ajanjaksoa
-    const hasTimeFilter = startDate || endDate;
-    
+    // Suodata päivämäärien mukaan
     if (startDate) {
       filteredData = filteredData.filter(d => new Date(d.measured_time) >= new Date(startDate));
     }
     if (endDate) {
       filteredData = filteredData.filter(d => new Date(d.measured_time) <= new Date(endDate));
-    }
-
-    // Jos ei ole aikasuodatinta, rajoita viimeiseen ajanjaksoon aggregoinnin mukaan
-    if (!hasTimeFilter && filteredData.length > 0) {
-      // Etsi viimeisin mittausaika
-      const latestTime = new Date(Math.max(...filteredData.map(d => new Date(d.measured_time).getTime())));
-      
-      // Laske ajanjakson alku aggregoinnin mukaan
-      const periodStart = new Date(latestTime);
-      switch (aggregationStep) {
-        case '5min':
-          periodStart.setMinutes(periodStart.getMinutes() - 5);
-          break;
-        case '15min':
-          periodStart.setMinutes(periodStart.getMinutes() - 15);
-          break;
-        case 'hour':
-          periodStart.setHours(periodStart.getHours() - 1);
-          break;
-        case 'day':
-          periodStart.setDate(periodStart.getDate() - 1);
-          break;
-        case 'week':
-          periodStart.setDate(periodStart.getDate() - 7);
-          break;
-        case 'month':
-          periodStart.setMonth(periodStart.getMonth() - 1);
-          break;
-        case 'year':
-          periodStart.setFullYear(periodStart.getFullYear() - 1);
-          break;
-      }
-      
-      // Suodata vain viimeisen ajanjakson data
-      filteredData = filteredData.filter(d => new Date(d.measured_time) >= periodStart);
     }
 
     // Ryhmittele aikavälien mukaan
